@@ -115,25 +115,40 @@ private struct PillarRow: View {
     let subtitle: String
 
     var body: some View {
-        HStack(alignment: .center, spacing: CCSpacing.sm) {
-            ZStack {
-                Circle()
-                    .fill(Color.ccHearthSoft)
-                    .frame(width: 36, height: 36)
-                Image(systemName: icon)
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(Color.ccHearth)
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .center, spacing: CCSpacing.sm) {
+                iconView
+                textView
             }
 
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.familyBodyBold())
-                    .foregroundColor(Color.ccInk)
-                Text(subtitle)
-                    .font(.familyCaption())
-                    .foregroundColor(Color.ccTextSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
+            VStack(alignment: .leading, spacing: CCSpacing.xs) {
+                iconView
+                textView
             }
+        }
+    }
+
+    private var iconView: some View {
+        ZStack {
+            Circle()
+                .fill(Color.ccHearthSoft)
+                .frame(width: 36, height: 36)
+            Image(systemName: icon)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(Color.ccHearth)
+        }
+    }
+
+    private var textView: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title)
+                .font(.familyBodyBold())
+                .foregroundColor(Color.ccInk)
+                .fixedSize(horizontal: false, vertical: true)
+            Text(subtitle)
+                .font(.familyCaption())
+                .foregroundColor(Color.ccTextSecondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 }

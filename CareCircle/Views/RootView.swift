@@ -15,7 +15,7 @@ public struct RootView: View {
     @StateObject private var service = FirebaseService.shared
     @State private var currentShell: AppShellMode = .family
     @State private var showingAuthFlow: Bool = false
-    @AppStorage("cc.quickSwitcherCollapsed") private var isSwitcherCollapsed: Bool = false
+    @AppStorage("cc.quickSwitcherCollapsed") private var isSwitcherCollapsed: Bool = true
 
     public init() {}
 
