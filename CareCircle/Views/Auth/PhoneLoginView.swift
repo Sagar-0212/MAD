@@ -30,15 +30,7 @@ public struct PhoneLoginView: View {
         VStack(spacing: 0) {
             // Top Navigation Bar
             HStack {
-                Button(action: onBack) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 15, weight: .semibold))
-                        Text("Back")
-                            .font(.system(size: 15, weight: .medium, design: .rounded))
-                    }
-                    .foregroundColor(Color.ccInk)
-                }
+                CCBackButton(action: onBack)
                 Spacer()
             }
             .padding(.horizontal, 20)
@@ -53,7 +45,7 @@ public struct PhoneLoginView: View {
 
                 Text("We'll send a 6-digit verification code to keep your family circle private and secure.")
                     .font(.familyBody())
-                    .foregroundColor(Color.ccInk.opacity(0.65))
+                    .foregroundColor(Color.ccTextSecondary)
                     .lineSpacing(3)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -64,9 +56,8 @@ public struct PhoneLoginView: View {
             // Phone Input Box
             VStack(alignment: .leading, spacing: 8) {
                 Text("MOBILE NUMBER")
-                    .font(.familyNumeral(size: 11))
-                    .foregroundColor(Color.ccInk.opacity(0.45))
-                    .tracking(1.2)
+                    .font(.familyLabel())
+                    .foregroundColor(Color.ccTextSecondary)
 
                 HStack(spacing: 12) {
                     // Country Code selector pill
@@ -79,29 +70,33 @@ public struct PhoneLoginView: View {
                     } label: {
                         HStack(spacing: 4) {
                             Text(countryCode)
-                                .font(.system(size: 17, weight: .semibold, design: .rounded))
+                                .font(.familyBody())
                                 .foregroundColor(Color.ccInk)
                             Image(systemName: "chevron.down")
-                                .font(.system(size: 11, weight: .semibold))
-                                .foregroundColor(Color.ccInk.opacity(0.4))
+                                .font(.caption.weight(.semibold))
+                                .foregroundColor(Color.ccTextSecondary)
                         }
                         .padding(.horizontal, 14)
                         .padding(.vertical, 14)
-                        .background(Color.ccLinen)
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .background(Color.ccSurfaceRaised)
+                        .clipShape(RoundedRectangle(cornerRadius: CCRadius.md, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: CCRadius.md, style: .continuous)
+                                .stroke(Color.ccHairline, lineWidth: 1)
+                        )
                     }
 
                     // Number Input Field
                     TextField("(555) 000-0000", text: $phoneNumber)
                         .keyboardType(.phonePad)
-                        .font(.system(size: 18, weight: .medium, design: .rounded))
+                        .font(.familyBody())
                         .foregroundColor(Color.ccInk)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 14)
-                        .background(Color.ccLinen.opacity(0.6))
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .background(Color.ccSurfaceRaised)
+                        .clipShape(RoundedRectangle(cornerRadius: CCRadius.md, style: .continuous))
                         .overlay(
-                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            RoundedRectangle(cornerRadius: CCRadius.md, style: .continuous)
                                 .stroke(isFieldFocused ? Color.ccHearth : Color.ccHairline, lineWidth: 1.5)
                         )
                         .focused($isFieldFocused)
@@ -115,26 +110,20 @@ public struct PhoneLoginView: View {
             VStack(spacing: 14) {
                 HStack(spacing: 8) {
                     Image(systemName: "hand.raised.fill")
-                        .font(.system(size: 12))
-                        .foregroundColor(Color.ccInk.opacity(0.4))
+                        .font(.caption)
+                        .foregroundColor(Color.ccTextSecondary)
                     Text("No passwords. We sign you in securely via SMS.")
                         .font(.familyCaption())
-                        .foregroundColor(Color.ccInk.opacity(0.5))
+                        .foregroundColor(Color.ccTextSecondary)
                 }
 
                 Button(action: {
-                    let impact = UIImpactFeedbackGenerator(style: .medium)
-                    impact.impactOccurred()
+                    CCHaptics.medium()
                     onSendCode()
                 }) {
                     Text("Continue with SMS")
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
-                        .foregroundColor(Color.ccPaper)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 54)
-                        .background(isValidPhone ? Color.ccHearth : Color.ccInk.opacity(0.2))
-                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                 }
+                .buttonStyle(CCPrimaryButtonStyle(tone: .hearth))
                 .disabled(!isValidPhone)
             }
             .padding(.horizontal, 24)

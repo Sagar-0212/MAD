@@ -90,6 +90,12 @@ public enum CCFormatters {
         return f
     }()
 
+    public static let weekday: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "EEEE"
+        return f
+    }()
+
     private static let isoDayParser: DateFormatter = {
         let f = DateFormatter()
         f.dateFormat = "yyyy-MM-dd"
@@ -640,7 +646,7 @@ public struct CCAvatar: View {
                 .overlay(Circle().stroke(Color.ccHairline, lineWidth: 1))
 
             Text(initial)
-                .font(.system(size: size * 0.42, weight: .bold, design: .rounded))
+                .font(.system(size > 30 ? .body : .caption, design: .rounded).weight(.bold))
                 .foregroundColor(textColor)
         }
         .accessibilityLabel(name)

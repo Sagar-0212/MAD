@@ -108,7 +108,7 @@ public struct ParentHomeView: View {
                         }
                         .foregroundColor(Color.ccTextSecondary)
                         .padding(.horizontal, 14)
-                        .frame(minHeight: 44)
+                        .frame(minHeight: 48)
                         .background(Color.ccLinen)
                         .clipShape(Capsule())
                         .overlay(Capsule().stroke(Color.ccHairline, lineWidth: 1))
@@ -278,6 +278,9 @@ public struct ParentHomeView: View {
                 }
             }
         }
+        .onDisappear {
+            breathingScale = 1.0
+        }
         .sheet(isPresented: $showingHelpModal) {
             ParentHelpModalView()
         }
@@ -413,6 +416,7 @@ struct ParentHelpModalView: View {
                     }
                     .font(.parentBody())
                     .foregroundColor(Color.ccInk)
+                    .frame(minWidth: 48, minHeight: 48)
                 }
             }
         }

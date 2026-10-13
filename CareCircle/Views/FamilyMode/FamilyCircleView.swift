@@ -120,7 +120,7 @@ public struct FamilyCircleView: View {
 
                                             if isCurrentUser {
                                                 Text("You")
-                                                    .font(.system(size: 10, weight: .bold, design: .rounded))
+                                                    .font(.caption2.weight(.bold))
                                                     .foregroundColor(Color.ccHearth)
                                                     .padding(.horizontal, 6)
                                                     .padding(.vertical, 2)

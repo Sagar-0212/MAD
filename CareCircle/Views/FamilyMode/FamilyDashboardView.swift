@@ -47,9 +47,7 @@ public struct FamilyDashboardView: View {
     }
 
     private var todayDayName: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "EEEE"
-        return formatter.string(from: Date())
+        CCFormatters.weekday.string(from: Date())
     }
 
     public var body: some View {
@@ -173,7 +171,7 @@ public struct FamilyDashboardView: View {
 
                         // Status Legend in 2x2 wrapping grid for Dynamic Type safety
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
-                            LegendItem(color: Color.ccSurfaceRaised, stroke: Color.ccInk.opacity(0.4), label: "Not yet")
+                            LegendItem(color: Color.ccSurfaceRaised, stroke: Color.ccHairline, label: "Not yet")
                             LegendItem(color: Color.ccHearth, label: "Checked In")
                             LegendItem(color: Color.ccWaiting, label: "Grace Window")
                             LegendItem(color: Color.ccAlert, label: "Missed")
@@ -411,6 +409,9 @@ public struct FamilyDashboardView: View {
                         pulseDot = true
                     }
                 }
+            }
+            .onDisappear {
+                pulseDot = false
             }
             .sheet(item: $resolvingAlert) { alert in
                 ResolveAlertSheet(alert: alert, service: service)

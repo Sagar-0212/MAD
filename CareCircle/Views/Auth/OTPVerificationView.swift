@@ -34,15 +34,7 @@ public struct OTPVerificationView: View {
         VStack(spacing: 0) {
             // Top Navigation
             HStack {
-                Button(action: onBack) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 15, weight: .semibold))
-                        Text("Back")
-                            .font(.system(size: 15, weight: .medium, design: .rounded))
-                    }
-                    .foregroundColor(Color.ccInk)
-                }
+                CCBackButton(action: onBack)
                 Spacer()
             }
             .padding(.horizontal, 20)
@@ -57,7 +49,7 @@ public struct OTPVerificationView: View {
 
                 Text("Sent to \(phoneNumber). Enter the 6-digit code below to confirm.")
                     .font(.familyBody())
-                    .foregroundColor(Color.ccInk.opacity(0.65))
+                    .foregroundColor(Color.ccTextSecondary)
                     .lineSpacing(3)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -81,8 +73,7 @@ public struct OTPVerificationView: View {
                             otpCode = filtered
                         }
                         if otpCode.count == 6 {
-                            let impact = UINotificationFeedbackGenerator()
-                            impact.notificationOccurred(.success)
+                            CCHaptics.success()
                             onVerify()
                         }
                     }
@@ -109,7 +100,7 @@ public struct OTPVerificationView: View {
                 if timeRemaining > 0 {
                     Text("Didn't receive it? Resend in")
                         .font(.familyCaption())
-                        .foregroundColor(Color.ccInk.opacity(0.55))
+                        .foregroundColor(Color.ccTextSecondary)
                     Text("0:\(String(format: "%02d", timeRemaining))")
                         .font(.familyNumeral(size: 13))
                         .foregroundColor(Color.ccHearth)
@@ -119,7 +110,8 @@ public struct OTPVerificationView: View {
                         onResend()
                     }) {
                         Text("Resend verification code")
-                            .font(.system(size: 14, weight: .semibold, design: .rounded))
+                            .font(.familyCaption())
+                            .fontWeight(.semibold)
                             .foregroundColor(Color.ccHearth)
                     }
                 }
@@ -131,13 +123,8 @@ public struct OTPVerificationView: View {
             VStack(spacing: 12) {
                 Button(action: onVerify) {
                     Text("Verify & Continue")
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
-                        .foregroundColor(Color.ccPaper)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 54)
-                        .background(isCodeComplete ? Color.ccHearth : Color.ccInk.opacity(0.2))
-                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                 }
+                .buttonStyle(CCPrimaryButtonStyle(tone: .hearth))
                 .disabled(!isCodeComplete)
             }
             .padding(.horizontal, 24)
@@ -167,15 +154,15 @@ private struct OTPDigitCell: View {
 
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Color.ccLinen.opacity(0.55))
+            RoundedRectangle(cornerRadius: CCRadius.md, style: .continuous)
+                .fill(Color.ccSurfaceRaised)
 
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(isActive ? Color.ccHearth : Color.ccHairline, lineWidth: isActive ? 2 : 1)
+            RoundedRectangle(cornerRadius: CCRadius.md, style: .continuous)
+                .stroke(isActive ? Color.ccHearth : Color.ccHairline, lineWidth: isActive ? 1.5 : 1)
 
             if !digit.isEmpty {
                 Text(digit)
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                    .font(.system(.title2, design: .rounded).weight(.bold))
                     .foregroundColor(Color.ccInk)
             }
         }

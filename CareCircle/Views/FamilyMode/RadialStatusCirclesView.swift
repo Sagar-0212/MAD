@@ -129,8 +129,8 @@ struct ParentSeatView: View {
                                 if status == .none {
                                     Circle()
                                         .stroke(
-                                            Color.ccInk.opacity(0.35),
-                                            style: StrokeStyle(lineWidth: 2, dash: [5, 4])
+                                            Color.ccHairline,
+                                            style: StrokeStyle(lineWidth: 1.5, dash: [5, 4])
                                         )
                                 } else {
                                     Circle()
@@ -181,6 +181,9 @@ struct ParentSeatView: View {
                 }
             }
         }
+        .onDisappear {
+            rotationAngle = 0
+        }
     }
 
     @ViewBuilder
@@ -189,7 +192,7 @@ struct ParentSeatView: View {
         case .ok:
             if let time = checkedInAt {
                 Text("In \(CCFormatters.shortTime.string(from: time))")
-                    .font(.system(size: 10, weight: .semibold, design: .rounded))
+                    .font(.caption2.weight(.semibold))
                     .foregroundColor(Color.ccHearth)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
@@ -197,7 +200,7 @@ struct ParentSeatView: View {
                     .clipShape(Capsule())
             } else {
                 Text("Checked in")
-                    .font(.system(size: 10, weight: .semibold, design: .rounded))
+                    .font(.caption2.weight(.semibold))
                     .foregroundColor(Color.ccHearth)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
@@ -206,7 +209,7 @@ struct ParentSeatView: View {
             }
         case .waiting:
             Text("Grace period")
-                .font(.system(size: 10, weight: .semibold, design: .rounded))
+                .font(.caption2.weight(.semibold))
                 .foregroundColor(Color.ccWaiting)
                 .padding(.horizontal, 6)
                 .padding(.vertical, 2)
@@ -214,7 +217,7 @@ struct ParentSeatView: View {
                 .clipShape(Capsule())
         case .missed:
             Text("Missed")
-                .font(.system(size: 10, weight: .semibold, design: .rounded))
+                .font(.caption2.weight(.semibold))
                 .foregroundColor(Color.ccAlert)
                 .padding(.horizontal, 6)
                 .padding(.vertical, 2)
@@ -222,7 +225,7 @@ struct ParentSeatView: View {
                 .clipShape(Capsule())
         case .none:
             Text("Not yet")
-                .font(.system(size: 10, weight: .medium, design: .rounded))
+                .font(.caption2.weight(.medium))
                 .foregroundColor(Color.ccTextTertiary)
                 .padding(.horizontal, 6)
                 .padding(.vertical, 2)

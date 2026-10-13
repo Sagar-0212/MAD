@@ -98,7 +98,7 @@ public struct RootView: View {
                             Image(systemName: "play.circle.fill")
                                 .font(.system(size: 11, weight: .bold))
                             Text("Skip to Demo")
-                                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                .font(.caption2.weight(.semibold))
                         }
                         .foregroundColor(Color.ccInk)
                         .padding(.horizontal, 10)
@@ -122,7 +122,7 @@ public struct RootView: View {
                             Image(systemName: showingAuthFlow ? "app.badge.checkmark" : "person.badge.key")
                                 .font(.system(size: 11, weight: .bold))
                             Text(showingAuthFlow ? "Exit Auth" : "Test Auth Flow")
-                                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                .font(.caption2.weight(.semibold))
                         }
                         .foregroundColor(Color.ccInk)
                         .padding(.horizontal, 10)
@@ -142,7 +142,7 @@ public struct RootView: View {
                                 Image(systemName: "arrow.left.arrow.right")
                                     .font(.system(size: 11, weight: .bold))
                                 Text(currentShell == .parent ? "Family Dashboard" : "Parent Mode")
-                                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                    .font(.caption2.weight(.semibold))
                             }
                             .foregroundColor(Color.ccInk)
                             .padding(.horizontal, 10)
