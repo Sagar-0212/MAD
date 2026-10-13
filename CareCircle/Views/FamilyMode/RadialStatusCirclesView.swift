@@ -38,17 +38,19 @@ public struct RadialStatusCirclesView: View {
                     .font(.familyHeadingSmall())
                     .foregroundColor(Color.ccTextTertiary)
                 
-                Text("\(parents.count) \(parents.count == 1 ? "seat" : "seats")")
-                    .font(.familyCaption())
-                    .foregroundColor(Color.ccTextTertiary)
+                if parents.isEmpty {
+                    Text("No parents linked yet")
+                        .font(.familyCaption())
+                        .foregroundColor(Color.ccTextSecondary)
+                } else {
+                    Text("\(parents.count) \(parents.count == 1 ? "seat" : "seats")")
+                        .font(.familyCaption())
+                        .foregroundColor(Color.ccTextTertiary)
+                }
             }
 
             // Radial placement of parent seats
-            if parents.isEmpty {
-                Text("No parents linked yet")
-                    .font(.familyCaption())
-                    .foregroundColor(Color.ccTextSecondary)
-            } else {
+            if !parents.isEmpty {
                 ForEach(Array(parents.enumerated()), id: \.element.id) { index, parent in
                     let angle = angleForIndex(index, total: parents.count)
                     let checkin = checkins[parent.id]

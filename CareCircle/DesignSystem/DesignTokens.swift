@@ -479,20 +479,41 @@ public struct CCScreenHeader<Trailing: View>: View {
     }
 
     public var body: some View {
-        HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: CCSpacing.xxs) {
-                Text(title)
-                    .font(.familyHeadingLarge())
-                    .foregroundColor(Color.ccInk)
-                if let subtitle = subtitle {
-                    Text(subtitle)
-                        .font(.familyBody())
-                        .foregroundColor(Color.ccTextSecondary)
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: CCSpacing.xxs) {
+                    Text(title)
+                        .font(.familyHeadingLarge())
+                        .foregroundColor(Color.ccInk)
+                    if let subtitle = subtitle {
+                        Text(subtitle)
+                            .font(.familyBody())
+                            .foregroundColor(Color.ccTextSecondary)
+                    }
+                }
+                Spacer()
+                if let trailing = trailing {
+                    trailing
                 }
             }
-            Spacer()
-            if let trailing = trailing {
-                trailing
+
+            VStack(alignment: .leading, spacing: CCSpacing.xs) {
+                HStack {
+                    VStack(alignment: .leading, spacing: CCSpacing.xxs) {
+                        Text(title)
+                            .font(.familyHeadingLarge())
+                            .foregroundColor(Color.ccInk)
+                        if let subtitle = subtitle {
+                            Text(subtitle)
+                                .font(.familyBody())
+                                .foregroundColor(Color.ccTextSecondary)
+                        }
+                    }
+                    Spacer()
+                }
+                if let trailing = trailing {
+                    trailing
+                }
             }
         }
         .padding(.horizontal, CCSpacing.lg)

@@ -44,6 +44,7 @@ public struct RootView: View {
 
             // Quick Switcher Capsule (For Previews, Simulator & Testing)
             quickSwitcherOverlay
+                .dynamicTypeSize(...DynamicTypeSize.accessibility1)
                 .padding(.trailing, 16)
                 .padding(.bottom, (currentShell == .family && service.isAuthenticated && !showingAuthFlow) ? 72 : 20)
         }

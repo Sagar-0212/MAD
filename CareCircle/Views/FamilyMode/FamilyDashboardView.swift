@@ -56,7 +56,7 @@ public struct FamilyDashboardView: View {
                 VStack(spacing: CCSpacing.lg) {
                     // Header
                     CCScreenHeader(
-                        title: service.currentFamily.name,
+                        title: service.currentFamily.name.isEmpty ? "CareCircle" : service.currentFamily.name,
                         subtitle: "Today's Family Circle",
                         trailing: {
                             Text(CCFormatters.dayMonth.string(from: Date()))
@@ -74,8 +74,28 @@ public struct FamilyDashboardView: View {
                     .padding(.top, CCSpacing.sm)
 
                     // Status Summary Card (Read-only)
-                    HStack(alignment: .center) {
-                        VStack(alignment: .leading, spacing: 4) {
+                    ViewThatFits(in: .horizontal) {
+                        HStack(alignment: .center) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("\(checkedInParentsCount) of \(parentMembers.count) parents checked in")
+                                    .font(.familyBodyBold())
+                                    .foregroundColor(Color.ccInk)
+
+                                Text(parentMembers.count == 1 ? "Daily check-in status" : "Combined family circle status")
+                                    .font(.familyCaption())
+                                    .foregroundColor(Color.ccTextSecondary)
+                            }
+
+                            Spacer()
+
+                            CCStatusChip(
+                                text: overallSummaryStatus.text,
+                                tone: overallSummaryStatus.tone,
+                                icon: overallSummaryStatus.icon
+                            )
+                        }
+
+                        VStack(alignment: .leading, spacing: CCSpacing.xs) {
                             Text("\(checkedInParentsCount) of \(parentMembers.count) parents checked in")
                                 .font(.familyBodyBold())
                                 .foregroundColor(Color.ccInk)
@@ -83,15 +103,13 @@ public struct FamilyDashboardView: View {
                             Text(parentMembers.count == 1 ? "Daily check-in status" : "Combined family circle status")
                                 .font(.familyCaption())
                                 .foregroundColor(Color.ccTextSecondary)
+
+                            CCStatusChip(
+                                text: overallSummaryStatus.text,
+                                tone: overallSummaryStatus.tone,
+                                icon: overallSummaryStatus.icon
+                            )
                         }
-
-                        Spacer()
-
-                        CCStatusChip(
-                            text: overallSummaryStatus.text,
-                            tone: overallSummaryStatus.tone,
-                            icon: overallSummaryStatus.icon
-                        )
                     }
                     .padding(CCSpacing.md)
                     .linenCard()
