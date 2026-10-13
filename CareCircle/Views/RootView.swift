@@ -16,6 +16,9 @@ public struct RootView: View {
     @State private var currentShell: AppShellMode = .family
     @State private var showingAuthFlow: Bool = false
     @AppStorage("cc.quickSwitcherCollapsed") private var isSwitcherCollapsed: Bool = true
+    #if DEBUG
+    @State private var initialTab: Int = 0
+    #endif
 
     public init() {}
 
@@ -33,7 +36,11 @@ public struct RootView: View {
                     case .parent:
                         ParentHomeView(service: service)
                     case .family:
+                        #if DEBUG
+                        FamilyShellTabView(service: service, initialTab: initialTab)
+                        #else
                         FamilyShellTabView(service: service)
+                        #endif
                     }
                 }
             }
@@ -49,7 +56,39 @@ public struct RootView: View {
                 .padding(.bottom, (currentShell == .family && service.isAuthenticated && !showingAuthFlow) ? 72 : 20)
         }
         .paperBackground()
+        #if DEBUG
+        .onAppear {
+            applyQAScreenHook()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                applyQAScreenHook()
+            }
+        }
+        #endif
     }
+
+    #if DEBUG
+    private func applyQAScreenHook() {
+        let args = ProcessInfo.processInfo.arguments
+        if let qaIndex = args.firstIndex(of: "-ccQAScreen"), qaIndex + 1 < args.count {
+            let screen = args[qaIndex + 1]
+            if screen == "welcome" {
+                service.isAuthenticated = false
+                showingAuthFlow = false
+            } else if screen == "parent" {
+                service.loadDemoData(role: .child)
+                showingAuthFlow = false
+                currentShell = .parent
+            } else if screen.hasPrefix("family") {
+                service.loadDemoData(role: .child)
+                showingAuthFlow = false
+                currentShell = .family
+                if let tabIndex = Int(screen.replacingOccurrences(of: "family", with: "")) {
+                    initialTab = tabIndex
+                }
+            }
+        }
+    }
+    #endif
 
     @ViewBuilder
     private var quickSwitcherOverlay: some View {
@@ -165,7 +204,12 @@ public struct RootView: View {
 // MARK: - Family Mode Shell Tab View
 struct FamilyShellTabView: View {
     @ObservedObject var service: FirebaseService
-    @State private var selectedTab: Int = 0
+    @State private var selectedTab: Int
+
+    init(service: FirebaseService, initialTab: Int = 0) {
+        self.service = service
+        self._selectedTab = State(initialValue: initialTab)
+    }
 
     private var unresolvedAlertsCount: Int {
         service.alerts.filter { !$0.isResolved }.count
