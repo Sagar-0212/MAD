@@ -32,57 +32,114 @@ public struct FamilyCircleView: View {
                                 .foregroundColor(Color.ccTextSecondary)
                                 .tracking(1.0)
 
-                            HStack {
-                                Text(code)
-                                    .font(.system(.title2, design: .monospaced, weight: .bold))
-                                    .foregroundColor(Color.ccHearth)
-                                    .tracking(2.0)
+                            ViewThatFits(in: .horizontal) {
+                                HStack {
+                                    Text(code)
+                                        .font(.system(.title2, design: .monospaced, weight: .bold))
+                                        .foregroundColor(Color.ccHearth)
+                                        .tracking(2.0)
 
-                                Spacer()
+                                    Spacer()
 
-                                HStack(spacing: 8) {
-                                    // Copy Button
-                                    Button(action: {
-                                        UIPasteboard.general.string = code
-                                        CCHaptics.success()
-                                        UIAccessibility.post(notification: .announcement, argument: "Invite code copied to clipboard.")
-                                        isCopied = true
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                                            isCopied = false
+                                    HStack(spacing: 8) {
+                                        // Copy Button
+                                        Button(action: {
+                                            UIPasteboard.general.string = code
+                                            CCHaptics.success()
+                                            UIAccessibility.post(notification: .announcement, argument: "Invite code copied to clipboard.")
+                                            isCopied = true
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                                                isCopied = false
+                                            }
+                                        }) {
+                                            HStack(spacing: 4) {
+                                                Image(systemName: isCopied ? "checkmark" : "doc.on.doc")
+                                                Text(isCopied ? "Copied ✓" : "Copy")
+                                                    .fixedSize(horizontal: true, vertical: false)
+                                            }
+                                            .font(.familyCaption())
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(Color.ccInk)
+                                            .padding(.horizontal, 12)
+                                            .frame(height: 36)
+                                            .background(Color.ccPaper)
+                                            .clipShape(Capsule())
+                                            .overlay(Capsule().stroke(Color.ccHairline, lineWidth: 1))
                                         }
-                                    }) {
-                                        HStack(spacing: 4) {
-                                            Image(systemName: isCopied ? "checkmark" : "doc.on.doc")
-                                            Text(isCopied ? "Copied ✓" : "Copy")
+
+                                        // Share Link
+                                        ShareLink(
+                                            item: "Join our CareCircle family circle with invite code: \(code)",
+                                            subject: Text("Join our CareCircle"),
+                                            message: Text("Join our CareCircle family circle with invite code: \(code)")
+                                        ) {
+                                            HStack(spacing: 4) {
+                                                Image(systemName: "square.and.arrow.up")
+                                                Text("Share")
+                                                    .fixedSize(horizontal: true, vertical: false)
+                                            }
+                                            .font(.familyCaption())
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(Color.ccInk)
+                                            .padding(.horizontal, 12)
+                                            .frame(height: 36)
+                                            .background(Color.ccPaper)
+                                            .clipShape(Capsule())
+                                            .overlay(Capsule().stroke(Color.ccHairline, lineWidth: 1))
                                         }
-                                        .font(.familyCaption())
-                                        .fontWeight(.semibold)
-                                        .foregroundColor(Color.ccInk)
-                                        .padding(.horizontal, 12)
-                                        .frame(height: 36)
-                                        .background(Color.ccPaper)
-                                        .clipShape(Capsule())
-                                        .overlay(Capsule().stroke(Color.ccHairline, lineWidth: 1))
                                     }
+                                }
 
-                                    // Share Link
-                                    ShareLink(
-                                        item: "Join our CareCircle family circle with invite code: \(code)",
-                                        subject: Text("Join our CareCircle"),
-                                        message: Text("Join our CareCircle family circle with invite code: \(code)")
-                                    ) {
-                                        HStack(spacing: 4) {
-                                            Image(systemName: "square.and.arrow.up")
-                                            Text("Share")
+                                VStack(alignment: .leading, spacing: 10) {
+                                    Text(code)
+                                        .font(.system(.title2, design: .monospaced, weight: .bold))
+                                        .foregroundColor(Color.ccHearth)
+                                        .tracking(2.0)
+
+                                    HStack(spacing: 8) {
+                                        Button(action: {
+                                            UIPasteboard.general.string = code
+                                            CCHaptics.success()
+                                            UIAccessibility.post(notification: .announcement, argument: "Invite code copied to clipboard.")
+                                            isCopied = true
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                                                isCopied = false
+                                            }
+                                        }) {
+                                            HStack(spacing: 4) {
+                                                Image(systemName: isCopied ? "checkmark" : "doc.on.doc")
+                                                Text(isCopied ? "Copied ✓" : "Copy")
+                                                    .fixedSize(horizontal: true, vertical: false)
+                                            }
+                                            .font(.familyCaption())
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(Color.ccInk)
+                                            .padding(.horizontal, 12)
+                                            .frame(height: 36)
+                                            .background(Color.ccPaper)
+                                            .clipShape(Capsule())
+                                            .overlay(Capsule().stroke(Color.ccHairline, lineWidth: 1))
                                         }
-                                        .font(.familyCaption())
-                                        .fontWeight(.semibold)
-                                        .foregroundColor(Color.ccInk)
-                                        .padding(.horizontal, 12)
-                                        .frame(height: 36)
-                                        .background(Color.ccPaper)
-                                        .clipShape(Capsule())
-                                        .overlay(Capsule().stroke(Color.ccHairline, lineWidth: 1))
+
+                                        ShareLink(
+                                            item: "Join our CareCircle family circle with invite code: \(code)",
+                                            subject: Text("Join our CareCircle"),
+                                            message: Text("Join our CareCircle family circle with invite code: \(code)")
+                                        ) {
+                                            HStack(spacing: 4) {
+                                                Image(systemName: "square.and.arrow.up")
+                                                Text("Share")
+                                                    .fixedSize(horizontal: true, vertical: false)
+                                            }
+                                            .font(.familyCaption())
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(Color.ccInk)
+                                            .padding(.horizontal, 12)
+                                            .frame(height: 36)
+                                            .background(Color.ccPaper)
+                                            .clipShape(Capsule())
+                                            .overlay(Capsule().stroke(Color.ccHairline, lineWidth: 1))
+                                        }
                                     }
                                 }
                             }
@@ -117,6 +174,7 @@ public struct FamilyCircleView: View {
                                             Text(member.displayName)
                                                 .font(.familyBodyBold())
                                                 .foregroundColor(Color.ccInk)
+                                                .lineLimit(1)
 
                                             if isCurrentUser {
                                                 Text("You")
@@ -132,6 +190,8 @@ public struct FamilyCircleView: View {
                                         Text(member.email ?? member.phoneNumber)
                                             .font(.familyCaption())
                                             .foregroundColor(Color.ccTextSecondary)
+                                            .lineLimit(1)
+                                            .truncationMode(.middle)
                                     }
 
                                     Spacer()

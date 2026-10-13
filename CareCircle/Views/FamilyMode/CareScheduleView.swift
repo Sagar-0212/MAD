@@ -51,31 +51,66 @@ public struct CareScheduleView: View {
                                         preselectedDay = dayNumber
                                         showingAddEntrySheet = true
                                     }) {
-                                        HStack {
-                                            if isToday {
-                                                Rectangle()
-                                                    .fill(Color.ccHearth)
-                                                    .frame(width: 4, height: 28)
-                                                    .clipShape(Capsule())
+                                        ViewThatFits(in: .horizontal) {
+                                            HStack {
+                                                if isToday {
+                                                    Rectangle()
+                                                        .fill(Color.ccHearth)
+                                                        .frame(width: 4, height: 28)
+                                                        .clipShape(Capsule())
+                                                }
+
+                                                Text(dayName)
+                                                    .font(.familyBodyBold())
+                                                    .foregroundColor(Color.ccInk)
+                                                    .lineLimit(1)
+                                                    .minimumScaleFactor(0.85)
+
+                                                if isToday {
+                                                    CCStatusChip(text: "Today", tone: .hearth, icon: nil)
+                                                }
+
+                                                Spacer()
+
+                                                HStack(spacing: 4) {
+                                                    Image(systemName: "plus.circle")
+                                                        .font(.caption)
+                                                    Text("Open")
+                                                        .font(.familyCaption())
+                                                        .fixedSize(horizontal: true, vertical: false)
+                                                }
+                                                .foregroundColor(Color.ccTextTertiary)
                                             }
 
-                                            Text(dayName)
-                                                .font(.familyBodyBold())
-                                                .foregroundColor(Color.ccInk)
+                                            VStack(alignment: .leading, spacing: 6) {
+                                                HStack {
+                                                    if isToday {
+                                                        Rectangle()
+                                                            .fill(Color.ccHearth)
+                                                            .frame(width: 4, height: 28)
+                                                            .clipShape(Capsule())
+                                                    }
 
-                                            if isToday {
-                                                CCStatusChip(text: "Today", tone: .hearth, icon: nil)
+                                                    Text(dayName)
+                                                        .font(.familyBodyBold())
+                                                        .foregroundColor(Color.ccInk)
+                                                        .lineLimit(1)
+                                                        .minimumScaleFactor(0.85)
+
+                                                    if isToday {
+                                                        CCStatusChip(text: "Today", tone: .hearth, icon: nil)
+                                                    }
+                                                }
+
+                                                HStack(spacing: 4) {
+                                                    Image(systemName: "plus.circle")
+                                                        .font(.caption)
+                                                    Text("Open")
+                                                        .font(.familyCaption())
+                                                        .fixedSize(horizontal: true, vertical: false)
+                                                }
+                                                .foregroundColor(Color.ccTextTertiary)
                                             }
-
-                                            Spacer()
-
-                                            HStack(spacing: 4) {
-                                                Image(systemName: "plus.circle")
-                                                    .font(.caption)
-                                                Text("Open")
-                                                    .font(.familyCaption())
-                                            }
-                                            .foregroundColor(Color.ccTextTertiary)
                                         }
                                         .padding(.horizontal, CCSpacing.md)
                                         .padding(.vertical, 12)
@@ -102,6 +137,8 @@ public struct CareScheduleView: View {
                                             Text(dayName)
                                                 .font(.familyBodyBold())
                                                 .foregroundColor(Color.ccInk)
+                                                .lineLimit(1)
+                                                .minimumScaleFactor(0.85)
 
                                             if isToday {
                                                 CCStatusChip(text: "Today", tone: .hearth, icon: nil)

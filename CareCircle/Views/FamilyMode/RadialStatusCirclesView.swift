@@ -167,8 +167,9 @@ struct ParentSeatView: View {
                     .font(.familyCaption())
                     .fontWeight(.medium)
                     .foregroundColor(Color.ccInk)
-                    .lineLimit(1)
-                    .frame(maxWidth: 84)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: 96)
 
                 // Compact status label under seat
                 seatStatusChip

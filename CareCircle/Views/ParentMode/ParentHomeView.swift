@@ -82,38 +82,36 @@ public struct ParentHomeView: View {
         ScrollView {
             VStack(spacing: CCSpacing.xl) {
                 // Top bar: Greeting, Date & Help affordance
-                HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(greetingText)
-                            .font(.parentHeadline())
-                            .foregroundColor(Color.ccInk)
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .top) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(greetingText)
+                                .font(.parentHeadline())
+                                .foregroundColor(Color.ccInk)
 
-                        Text(formattedDateString)
-                            .font(.parentCallout())
-                            .foregroundColor(Color.ccTextSecondary)
-                    }
-
-                    Spacer()
-
-                    Button(action: {
-                        CCHaptics.light()
-                        showingHelpModal = true
-                    }) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "questionmark.circle")
-                                .font(.system(size: 15, weight: .semibold))
-                            Text("Help")
+                            Text(formattedDateString)
                                 .font(.parentCallout())
-                                .fontWeight(.semibold)
+                                .foregroundColor(Color.ccTextSecondary)
                         }
-                        .foregroundColor(Color.ccTextSecondary)
-                        .padding(.horizontal, 14)
-                        .frame(minHeight: 48)
-                        .background(Color.ccLinen)
-                        .clipShape(Capsule())
-                        .overlay(Capsule().stroke(Color.ccHairline, lineWidth: 1))
+
+                        Spacer()
+
+                        helpButton
                     }
-                    .accessibilityLabel("Need Help or Emergency Assistance")
+
+                    VStack(alignment: .leading, spacing: CCSpacing.sm) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(greetingText)
+                                .font(.parentHeadline())
+                                .foregroundColor(Color.ccInk)
+
+                            Text(formattedDateString)
+                                .font(.parentCallout())
+                                .foregroundColor(Color.ccTextSecondary)
+                        }
+
+                        helpButton
+                    }
                 }
                 .padding(.horizontal, CCSpacing.lg)
                 .padding(.top, CCSpacing.sm)
@@ -284,6 +282,28 @@ public struct ParentHomeView: View {
         .sheet(isPresented: $showingHelpModal) {
             ParentHelpModalView()
         }
+    }
+
+    private var helpButton: some View {
+        Button(action: {
+            CCHaptics.light()
+            showingHelpModal = true
+        }) {
+            HStack(spacing: 6) {
+                Image(systemName: "questionmark.circle")
+                    .font(.system(size: 15, weight: .semibold))
+                Text("Help")
+                    .font(.parentCallout())
+                    .fontWeight(.semibold)
+            }
+            .foregroundColor(Color.ccTextSecondary)
+            .padding(.horizontal, 14)
+            .frame(minHeight: 48)
+            .background(Color.ccLinen)
+            .clipShape(Capsule())
+            .overlay(Capsule().stroke(Color.ccHairline, lineWidth: 1))
+        }
+        .accessibilityLabel("Need Help or Emergency Assistance")
     }
 }
 

@@ -485,6 +485,7 @@ public struct CCScreenHeader<Trailing: View>: View {
                     Text(title)
                         .font(.familyHeadingLarge())
                         .foregroundColor(Color.ccInk)
+                        .minimumScaleFactor(0.65)
                     if let subtitle = subtitle {
                         Text(subtitle)
                             .font(.familyBody())
@@ -503,6 +504,7 @@ public struct CCScreenHeader<Trailing: View>: View {
                         Text(title)
                             .font(.familyHeadingLarge())
                             .foregroundColor(Color.ccInk)
+                            .minimumScaleFactor(0.65)
                         if let subtitle = subtitle {
                             Text(subtitle)
                                 .font(.familyBody())
