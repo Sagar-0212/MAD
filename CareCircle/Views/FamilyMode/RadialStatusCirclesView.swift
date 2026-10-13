@@ -32,22 +32,22 @@ public struct RadialStatusCirclesView: View {
                 .stroke(Color.ccHairline, lineWidth: 1.5)
                 .frame(width: 210, height: 210)
 
-            // Table Center Label: Calm, subtle family marker
+            // Table Center Label
             VStack(spacing: 4) {
                 Text("Family Table")
                     .font(.familyHeadingSmall())
-                    .foregroundColor(Color.ccInk.opacity(0.40))
+                    .foregroundColor(Color.ccTextTertiary)
                 
                 Text("\(parents.count) \(parents.count == 1 ? "seat" : "seats")")
                     .font(.familyCaption())
-                    .foregroundColor(Color.ccInk.opacity(0.35))
+                    .foregroundColor(Color.ccTextTertiary)
             }
 
             // Radial placement of parent seats
             if parents.isEmpty {
                 Text("No parents linked yet")
                     .font(.familyCaption())
-                    .foregroundColor(Color.ccInk.opacity(0.5))
+                    .foregroundColor(Color.ccTextSecondary)
             } else {
                 ForEach(Array(parents.enumerated()), id: \.element.id) { index, parent in
                     let angle = angleForIndex(index, total: parents.count)
@@ -57,16 +57,18 @@ public struct RadialStatusCirclesView: View {
                     ParentSeatView(
                         parent: parent,
                         status: status,
+                        checkedInAt: checkin?.checkedInAt,
                         action: {
                             onSelectParent(parent)
                         }
                     )
                     .offset(x: offsetForAngle(angle).x, y: offsetForAngle(angle).y)
+                    .animation(CCMotion.snappy, value: status)
                 }
             }
         }
-        .frame(width: 320, height: 320)
-        .padding(.vertical, 16)
+        .frame(width: 340, height: 340)
+        .padding(.vertical, CCSpacing.sm)
     }
 
     private func angleForIndex(_ index: Int, total: Int) -> Double {
@@ -79,7 +81,7 @@ public struct RadialStatusCirclesView: View {
     }
 
     private func offsetForAngle(_ angle: Double) -> CGPoint {
-        let radius: CGFloat = 105
+        let radius: CGFloat = 110
         let x = radius * CGFloat(cos(angle))
         let y = radius * CGFloat(sin(angle))
         return CGPoint(x: x, y: y)
@@ -90,52 +92,143 @@ public struct RadialStatusCirclesView: View {
 struct ParentSeatView: View {
     let parent: FamilyMember
     let status: CheckinStatus
+    var checkedInAt: Date? = nil
     let action: () -> Void
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var rotationAngle: Double = 0
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 6) {
+            VStack(spacing: 4) {
                 ZStack {
-                    // Circle background depending on checkin status
+                    // Missed status halo
+                    if status == .missed {
+                        Circle()
+                            .fill(Color.ccAlertSoft)
+                            .frame(width: 78, height: 78)
+                    }
+
+                    // Rotating dashed ring for grace/waiting state
+                    if status == .waiting {
+                        Circle()
+                            .stroke(
+                                Color.ccWaiting,
+                                style: StrokeStyle(lineWidth: 2.5, dash: [6, 4])
+                            )
+                            .frame(width: 76, height: 76)
+                            .rotationEffect(.degrees(rotationAngle))
+                    }
+
+                    // Base Circle
                     Circle()
                         .fill(circleFillColor)
-                        .frame(width: 68, height: 68)
+                        .frame(width: 66, height: 66)
                         .overlay(
-                            Circle()
-                                .stroke(circleStrokeColor, lineWidth: strokeWidth)
+                            Group {
+                                if status == .none {
+                                    Circle()
+                                        .stroke(
+                                            Color.ccInk.opacity(0.35),
+                                            style: StrokeStyle(lineWidth: 2, dash: [5, 4])
+                                        )
+                                } else {
+                                    Circle()
+                                        .stroke(Color.ccHairline, lineWidth: 1)
+                                }
+                            }
                         )
 
                     // Inner status icon or initial
                     if status == .ok {
                         Image(systemName: "checkmark")
-                            .font(.system(size: 20, weight: .bold))
+                            .font(.system(size: 22, weight: .bold))
                             .foregroundColor(Color.ccPaper)
                     } else if status == .waiting {
                         Image(systemName: "hourglass")
-                            .font(.system(size: 18, weight: .semibold))
+                            .font(.system(size: 19, weight: .semibold))
                             .foregroundColor(Color.ccInk)
                     } else if status == .missed {
                         Image(systemName: "exclamationmark")
-                            .font(.system(size: 22, weight: .bold))
+                            .font(.system(size: 24, weight: .bold))
                             .foregroundColor(Color.ccPaper)
                     } else {
                         // Empty outline: Show parent's first initial
                         Text(String(parent.displayName.prefix(1)))
                             .font(.familyHeadingMedium())
-                            .foregroundColor(Color.ccInk.opacity(0.7))
+                            .foregroundColor(Color.ccInk)
                     }
                 }
 
                 // Member Name
                 Text(parent.displayName)
                     .font(.familyCaption())
+                    .fontWeight(.medium)
                     .foregroundColor(Color.ccInk)
                     .lineLimit(1)
-                    .frame(width: 80)
+                    .frame(maxWidth: 84)
+
+                // Compact status label under seat
+                seatStatusChip
             }
         }
         .buttonStyle(.plain)
         .accessibilityLabel("\(parent.displayName): \(statusDescription)")
+        .onAppear {
+            if status == .waiting && !reduceMotion {
+                withAnimation(Animation.linear(duration: 8).repeatForever(autoreverses: false)) {
+                    rotationAngle = 360
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var seatStatusChip: some View {
+        switch status {
+        case .ok:
+            if let time = checkedInAt {
+                Text("In \(CCFormatters.shortTime.string(from: time))")
+                    .font(.system(size: 10, weight: .semibold, design: .rounded))
+                    .foregroundColor(Color.ccHearth)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color.ccHearthSoft)
+                    .clipShape(Capsule())
+            } else {
+                Text("Checked in")
+                    .font(.system(size: 10, weight: .semibold, design: .rounded))
+                    .foregroundColor(Color.ccHearth)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color.ccHearthSoft)
+                    .clipShape(Capsule())
+            }
+        case .waiting:
+            Text("Grace period")
+                .font(.system(size: 10, weight: .semibold, design: .rounded))
+                .foregroundColor(Color.ccWaiting)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Color.ccWaitingSoft)
+                .clipShape(Capsule())
+        case .missed:
+            Text("Missed")
+                .font(.system(size: 10, weight: .semibold, design: .rounded))
+                .foregroundColor(Color.ccAlert)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Color.ccAlertSoft)
+                .clipShape(Capsule())
+        case .none:
+            Text("Not yet")
+                .font(.system(size: 10, weight: .medium, design: .rounded))
+                .foregroundColor(Color.ccTextTertiary)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Color.ccLinen)
+                .clipShape(Capsule())
+        }
     }
 
     private var circleFillColor: Color {
@@ -147,21 +240,8 @@ struct ParentSeatView: View {
         case .missed:
             return Color.ccAlert        // Brick red (confirmed missed past grace)
         case .none:
-            return Color.ccPaper        // Empty outline (no check-in yet)
+            return Color.ccSurfaceRaised // Dashed outline (no check-in yet)
         }
-    }
-
-    private var circleStrokeColor: Color {
-        switch status {
-        case .none:
-            return Color.ccInk.opacity(0.35)
-        default:
-            return Color.clear
-        }
-    }
-
-    private var strokeWidth: CGFloat {
-        status == .none ? 2.5 : 0
     }
 
     private var statusDescription: String {

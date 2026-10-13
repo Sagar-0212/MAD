@@ -7,9 +7,9 @@ import SwiftUI
 // Family Mode Numerals: IBM Plex Mono / System Monospaced (small sizes only).
 
 extension Font {
-    // MARK: - Parent Mode Fonts (SF Pro Rounded)
+    // MARK: - Parent Mode Fonts (SF Pro Rounded with Dynamic Type)
     public static func parentHero() -> Font {
-        .system(size: 32, weight: .bold, design: .rounded)
+        .system(.largeTitle, design: .rounded, weight: .bold)
     }
 
     public static func parentTitle() -> Font {
@@ -29,7 +29,7 @@ extension Font {
     }
 
     public static func parentButton() -> Font {
-        .system(size: 26, weight: .bold, design: .rounded)
+        .system(.title, design: .rounded, weight: .bold)
     }
 
     // MARK: - Family Mode Fonts
@@ -79,6 +79,15 @@ extension Font {
         if let _ = UIFont(name: "IBMPlexMono", size: size) {
             return .custom("IBMPlexMono", size: size, relativeTo: .caption)
         }
-        return .system(size: size, weight: .regular, design: .monospaced)
+        return .system(.caption, design: .monospaced, weight: .regular)
+    }
+
+    // Dynamic Type additions for modern UI/UX
+    public static func familyLabel() -> Font {
+        .system(.caption2, design: .rounded, weight: .semibold)
+    }
+
+    public static func familyButton() -> Font {
+        .system(.body, design: .rounded, weight: .semibold)
     }
 }

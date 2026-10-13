@@ -28,127 +28,155 @@ public struct AuthFlowCoordinatorView: View {
         self.onAuthComplete = onAuthComplete
     }
 
+    private var stepProgressIndex: Int? {
+        switch currentStep {
+        case .welcome: return nil
+        case .emailAuth: return 1
+        case .profile: return 2
+        case .familySetup: return 3
+        case .notification: return 4
+        }
+    }
+
     public var body: some View {
         ZStack(alignment: .top) {
             // Main Step Views
-            Group {
-                switch currentStep {
-                case .welcome:
-                    WelcomeView(
-                        onGetStarted: {
-                            errorMessage = nil
-                            authMode = .signUp
-                            withAnimation { currentStep = .emailAuth }
-                        },
-                        onHaveInviteCode: {
-                            errorMessage = nil
-                            authMode = .signIn
-                            withAnimation { currentStep = .emailAuth }
-                        }
-                    )
-                    .transition(.asymmetric(insertion: .opacity, removal: .move(edge: .leading)))
+            VStack(spacing: 0) {
+                if let stepIndex = stepProgressIndex {
+                    CCStepProgress(current: stepIndex, total: 4)
+                        .padding(.top, CCSpacing.xs)
+                        .padding(.horizontal, CCSpacing.lg)
+                        .transition(.opacity)
+                }
 
-                case .emailAuth:
-                    EmailAuthView(
-                        email: $email,
-                        password: $password,
-                        mode: $authMode,
-                        onSubmit: {
-                            handleEmailAuthSubmit()
-                        },
-                        onGuestAccess: {
-                            handleGuestAuthSubmit()
-                        },
-                        onBack: {
-                            errorMessage = nil
-                            withAnimation { currentStep = .welcome }
-                        }
-                    )
-                    .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
+                Group {
+                    switch currentStep {
+                    case .welcome:
+                        WelcomeView(
+                            onGetStarted: {
+                                errorMessage = nil
+                                authMode = .signUp
+                                withAnimation(CCMotion.gentle) { currentStep = .emailAuth }
+                            },
+                            onHaveInviteCode: {
+                                errorMessage = nil
+                                authMode = .signIn
+                                withAnimation(CCMotion.gentle) { currentStep = .emailAuth }
+                            }
+                        )
+                        .transition(.asymmetric(insertion: .opacity, removal: .move(edge: .leading)))
 
-                case .profile:
-                    ProfileSetupView(
-                        displayName: $displayName,
-                        selectedRole: $selectedRole,
-                        onContinue: {
-                            errorMessage = nil
-                            withAnimation { currentStep = .familySetup }
-                        },
-                        onBack: {
-                            errorMessage = nil
-                            withAnimation { currentStep = .emailAuth }
-                        }
-                    )
-                    .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
+                    case .emailAuth:
+                        EmailAuthView(
+                            email: $email,
+                            password: $password,
+                            mode: $authMode,
+                            onSubmit: {
+                                handleEmailAuthSubmit()
+                            },
+                            onGuestAccess: {
+                                handleGuestAuthSubmit()
+                            },
+                            onBack: {
+                                errorMessage = nil
+                                withAnimation(CCMotion.gentle) { currentStep = .welcome }
+                            }
+                        )
+                        .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
 
-                case .familySetup:
-                    FamilySetupView(
-                        familyName: $familyName,
-                        inviteCode: $inviteCode,
-                        onCreateFamily: {
-                            handleCreateFamily()
-                        },
-                        onJoinFamily: {
-                            handleJoinFamily()
-                        },
-                        onBack: {
-                            errorMessage = nil
-                            withAnimation { currentStep = .profile }
-                        }
-                    )
-                    .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
+                    case .profile:
+                        ProfileSetupView(
+                            displayName: $displayName,
+                            selectedRole: $selectedRole,
+                            onContinue: {
+                                errorMessage = nil
+                                withAnimation(CCMotion.gentle) { currentStep = .familySetup }
+                            },
+                            onBack: {
+                                errorMessage = nil
+                                withAnimation(CCMotion.gentle) { currentStep = .emailAuth }
+                            }
+                        )
+                        .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
 
-                case .notification:
-                    NotificationPermissionView(
-                        role: selectedRole,
-                        onContinue: {
-                            finishFlow()
-                        },
-                        onSkip: {
-                            finishFlow()
-                        }
-                    )
-                    .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .opacity))
+                    case .familySetup:
+                        FamilySetupView(
+                            familyName: $familyName,
+                            inviteCode: $inviteCode,
+                            onCreateFamily: {
+                                handleCreateFamily()
+                            },
+                            onJoinFamily: {
+                                handleJoinFamily()
+                            },
+                            onBack: {
+                                errorMessage = nil
+                                withAnimation(CCMotion.gentle) { currentStep = .profile }
+                            }
+                        )
+                        .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
+
+                    case .notification:
+                        NotificationPermissionView(
+                            role: selectedRole,
+                            onContinue: {
+                                finishFlow()
+                            },
+                            onSkip: {
+                                finishFlow()
+                            }
+                        )
+                        .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .opacity))
+                    }
                 }
             }
 
             // Global Error Banner
             if let error = errorMessage {
-                HStack(spacing: 8) {
-                    Image(systemName: "exclamationmark.circle.fill")
-                        .foregroundColor(Color.ccAlert)
-                    Text(error)
-                        .font(.familyCaption())
-                        .foregroundColor(Color.ccInk)
-                        .lineLimit(2)
-                    Spacer()
-                    Button(action: { errorMessage = nil }) {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundColor(Color.ccInk.opacity(0.5))
+                CCBanner(message: error, tone: .alert) {
+                    withAnimation(CCMotion.snappy) {
+                        errorMessage = nil
                     }
                 }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 10)
-                .background(Color.ccPaper)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.ccAlert.opacity(0.4), lineWidth: 1))
-                .shadow(color: Color.black.opacity(0.08), radius: 8, y: 4)
-                .padding(.horizontal, 20)
-                .padding(.top, 50)
+                .padding(.horizontal, CCSpacing.lg)
+                .padding(.top, 16)
                 .transition(.move(edge: .top).combined(with: .opacity))
+                .onAppear {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 6) {
+                        withAnimation(CCMotion.snappy) {
+                            if errorMessage == error {
+                                errorMessage = nil
+                            }
+                        }
+                    }
+                }
             }
 
             // Loading overlay
             if service.isLoading || isSubmitting {
-                Color.black.opacity(0.15)
-                    .ignoresSafeArea()
-                ProgressView()
-                    .padding(20)
-                    .background(Color.ccPaper)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .shadow(radius: 8)
-                    .padding(.top, 200)
+                ZStack {
+                    Color.black.opacity(0.2)
+                        .ignoresSafeArea()
+
+                    VStack(spacing: CCSpacing.md) {
+                        ProgressView()
+                            .scaleEffect(1.2)
+                            .tint(Color.ccHearth)
+                        Text("Just a moment…")
+                            .font(.familyBody())
+                            .foregroundColor(Color.ccInk)
+                    }
+                    .padding(.horizontal, CCSpacing.xl)
+                    .padding(.vertical, CCSpacing.lg)
+                    .background(Color.ccSurfaceRaised)
+                    .clipShape(RoundedRectangle(cornerRadius: CCRadius.lg, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: CCRadius.lg, style: .continuous)
+                            .stroke(Color.ccHairline, lineWidth: 1)
+                    )
+                    .accessibilityLabel("Loading")
+                }
+                .transition(.opacity)
             }
         }
     }

@@ -15,6 +15,12 @@ public struct ParentHomeView: View {
 
     @State private var showingHelpModal: Bool = false
     @State private var checkinAnimation: Bool = false
+    @State private var breathingScale: CGFloat = 1.0
+    @State private var ringExpandScale: CGFloat = 1.0
+    @State private var ringExpandOpacity: Double = 0.0
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @ScaledMetric(relativeTo: .title) private var circleSizeMetric: CGFloat = 240
 
     public init(service: FirebaseService = .shared, parentMemberId: String = "member_parent_arthur") {
         self.service = service
@@ -42,52 +48,130 @@ public struct ParentHomeView: View {
         currentCheckin?.status == .ok
     }
 
+    private var greetingText: String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        let timeGreeting: String
+        if hour < 12 {
+            timeGreeting = "Good morning"
+        } else if hour < 17 {
+            timeGreeting = "Good afternoon"
+        } else {
+            timeGreeting = "Good evening"
+        }
+
+        if let parentMember = service.members.first(where: { $0.id == resolvedParentId }) {
+            let firstName = parentMember.displayName.components(separatedBy: " ").first ?? parentMember.displayName
+            return "\(timeGreeting), \(firstName)"
+        }
+        return timeGreeting
+    }
+
+    private var formattedDateString: String {
+        CCFormatters.dayMonth.string(from: Date())
+    }
+
+    private var clampedCircleSize: CGFloat {
+        min(circleSizeMetric, UIScreen.main.bounds.width - 48)
+    }
+
+    private var takenMedsCount: Int {
+        service.medications.filter { $0.isTakenToday == true }.count
+    }
+
     public var body: some View {
         ScrollView {
-            VStack(spacing: 36) {
-                // Top bar: small low-contrast Help affordance in corner only
-                HStack {
+            VStack(spacing: CCSpacing.xl) {
+                // Top bar: Greeting, Date & Help affordance
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(greetingText)
+                            .font(.parentHeadline())
+                            .foregroundColor(Color.ccInk)
+
+                        Text(formattedDateString)
+                            .font(.parentCallout())
+                            .foregroundColor(Color.ccTextSecondary)
+                    }
+
                     Spacer()
+
                     Button(action: {
+                        CCHaptics.light()
                         showingHelpModal = true
                     }) {
-                        Text("Help")
-                            .font(.parentCallout())
-                            .foregroundColor(Color.ccInk.opacity(0.40))
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .background(Color.ccLinen.opacity(0.6))
-                            .clipShape(Capsule())
+                        HStack(spacing: 6) {
+                            Image(systemName: "questionmark.circle")
+                                .font(.system(size: 15, weight: .semibold))
+                            Text("Help")
+                                .font(.parentCallout())
+                                .fontWeight(.semibold)
+                        }
+                        .foregroundColor(Color.ccTextSecondary)
+                        .padding(.horizontal, 14)
+                        .frame(minHeight: 44)
+                        .background(Color.ccLinen)
+                        .clipShape(Capsule())
+                        .overlay(Capsule().stroke(Color.ccHairline, lineWidth: 1))
                     }
                     .accessibilityLabel("Need Help or Emergency Assistance")
                 }
-                .padding(.horizontal, 24)
-                .padding(.top, 12)
+                .padding(.horizontal, CCSpacing.lg)
+                .padding(.top, CCSpacing.sm)
 
                 // Large Primary Check-In Button
-                VStack(spacing: 16) {
+                VStack(spacing: CCSpacing.md) {
                     Button(action: {
-                        let generator = UIImpactFeedbackGenerator(style: .heavy)
-                        generator.impactOccurred()
+                        CCHaptics.heavy()
                         service.recordParentCheckin(memberId: resolvedParentId)
-                        withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                        withAnimation(CCMotion.gentle) {
                             checkinAnimation = true
+                            if !reduceMotion {
+                                ringExpandScale = 1.3
+                                ringExpandOpacity = 0.0
+                            }
                         }
+                        UIAccessibility.post(notification: .announcement, argument: "Checked in. Your family has been notified.")
                     }) {
                         ZStack {
+                            // Breathing outer ring when not checked in
+                            if !isCheckedInToday && !reduceMotion {
+                                Circle()
+                                    .stroke(Color.ccHearth.opacity(0.4), lineWidth: 1.5)
+                                    .frame(width: clampedCircleSize + 16, height: clampedCircleSize + 16)
+                                    .scaleEffect(breathingScale)
+                            }
+
+                            // One-shot expanding ring on checkin tap
+                            if !reduceMotion && ringExpandOpacity > 0 {
+                                Circle()
+                                    .stroke(Color.ccHearth, lineWidth: 2)
+                                    .frame(width: clampedCircleSize, height: clampedCircleSize)
+                                    .scaleEffect(ringExpandScale)
+                                    .opacity(ringExpandOpacity)
+                            }
+
+                            // Background soft halo when checked in
+                            if isCheckedInToday {
+                                Circle()
+                                    .fill(Color.ccHearthSoft)
+                                    .frame(width: clampedCircleSize + 16, height: clampedCircleSize + 16)
+                            }
+
+                            // Main Check-In Circle
                             Circle()
                                 .fill(isCheckedInToday ? Color.ccLinen : Color.ccHearth)
-                                .frame(width: 240, height: 240)
+                                .frame(width: clampedCircleSize, height: clampedCircleSize)
                                 .overlay(
                                     Circle()
-                                        .stroke(Color.ccInk.opacity(0.15), lineWidth: isCheckedInToday ? 2 : 0)
+                                        .stroke(Color.ccHairline, lineWidth: isCheckedInToday ? 1.5 : 0)
                                 )
 
                             VStack(spacing: 10) {
                                 if isCheckedInToday {
                                     Image(systemName: "checkmark")
-                                        .font(.system(size: 44, weight: .bold, design: .rounded))
+                                        .font(.system(size: 48, weight: .bold, design: .rounded))
                                         .foregroundColor(Color.ccInk)
+                                        .scaleEffect(checkinAnimation ? 1.0 : 0.8)
 
                                     Text("You're checked in")
                                         .font(.parentHeadline())
@@ -95,9 +179,9 @@ public struct ParentHomeView: View {
                                         .multilineTextAlignment(.center)
 
                                     if let checkedAt = currentCheckin?.checkedInAt {
-                                        Text(timeString(from: checkedAt))
+                                        Text(CCFormatters.shortTime.string(from: checkedAt))
                                             .font(.parentCallout())
-                                            .foregroundColor(Color.ccInk.opacity(0.6))
+                                            .foregroundColor(Color.ccTextSecondary)
                                     }
                                 } else {
                                     Text("I'm okay\ntoday.")
@@ -117,9 +201,9 @@ public struct ParentHomeView: View {
                     if !isCheckedInToday {
                         Text("Tap circle once to let family know you are okay")
                             .font(.parentCallout())
-                            .foregroundColor(Color.ccInk.opacity(0.65))
+                            .foregroundColor(Color.ccTextSecondary)
                             .multilineTextAlignment(.center)
-                            .padding(.horizontal, 32)
+                            .padding(.horizontal, CCSpacing.xl)
                     }
                 }
 
@@ -127,34 +211,59 @@ public struct ParentHomeView: View {
                 Rectangle()
                     .fill(Color.ccHairline)
                     .frame(height: 1)
-                    .padding(.horizontal, 24)
+                    .padding(.horizontal, CCSpacing.lg)
 
                 // Today's Medications List
-                VStack(alignment: .leading, spacing: 18) {
-                    Text("Today's Medications")
-                        .font(.parentHeadline())
-                        .foregroundColor(Color.ccInk)
-                        .padding(.horizontal, 24)
+                VStack(alignment: .leading, spacing: CCSpacing.md) {
+                    HStack {
+                        Text("Today's Medications")
+                            .font(.parentHeadline())
+                            .foregroundColor(Color.ccInk)
+
+                        Spacer()
+
+                        if !service.medications.isEmpty {
+                            CCStatusChip(
+                                text: "\(takenMedsCount) of \(service.medications.count) taken",
+                                tone: takenMedsCount == service.medications.count ? .hearth : .neutral,
+                                icon: takenMedsCount == service.medications.count ? "checkmark.circle.fill" : nil
+                            )
+                        }
+                    }
+                    .padding(.horizontal, CCSpacing.lg)
 
                     if service.medications.isEmpty {
-                        Text("No scheduled medications today")
-                            .font(.parentBody())
-                            .foregroundColor(Color.ccInk.opacity(0.6))
-                            .padding(.horizontal, 24)
+                        CCEmptyState(
+                            icon: "pills",
+                            title: "No Medications",
+                            message: "No scheduled medications for today."
+                        )
+                        .padding(.horizontal, CCSpacing.lg)
                     } else {
-                        VStack(spacing: 14) {
+                        VStack(spacing: CCSpacing.sm) {
                             ForEach(service.medications) { med in
                                 MedicationRowView(
                                     medication: med,
                                     onToggle: {
-                                        let generator = UIImpactFeedbackGenerator(style: .medium)
-                                        generator.impactOccurred()
+                                        CCHaptics.medium()
                                         service.toggleMedicationTaken(medId: med.id)
                                     }
                                 )
                             }
                         }
-                        .padding(.horizontal, 24)
+                        .padding(.horizontal, CCSpacing.lg)
+
+                        if takenMedsCount == service.medications.count {
+                            HStack(spacing: 6) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(Color.ccHearth)
+                                Text("All done for today")
+                                    .font(.parentCallout())
+                                    .foregroundColor(Color.ccTextSecondary)
+                            }
+                            .padding(.horizontal, CCSpacing.lg)
+                            .padding(.top, 2)
+                        }
                     }
                 }
 
@@ -162,15 +271,16 @@ public struct ParentHomeView: View {
             }
         }
         .paperBackground()
+        .onAppear {
+            if !reduceMotion {
+                withAnimation(Animation.easeInOut(duration: 2.4).repeatForever(autoreverses: true)) {
+                    breathingScale = 1.06
+                }
+            }
+        }
         .sheet(isPresented: $showingHelpModal) {
             ParentHelpModalView()
         }
-    }
-
-    private func timeString(from date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.timeStyle = .short
-        return formatter.string(from: date)
     }
 }
 
@@ -184,21 +294,25 @@ struct MedicationRowView: View {
     }
 
     var body: some View {
-        Button(action: onToggle) {
-            HStack(spacing: 18) {
+        Button(action: {
+            withAnimation(CCMotion.snappy) {
+                onToggle()
+            }
+        }) {
+            HStack(spacing: CCSpacing.md) {
                 // Large Checkbox (at least 48x48pt tap area for accessibility)
                 ZStack {
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(isTaken ? Color.ccHearth : Color.ccPaper)
-                        .frame(width: 44, height: 44)
+                    RoundedRectangle(cornerRadius: CCRadius.sm, style: .continuous)
+                        .fill(isTaken ? Color.ccHearth : Color.ccSurfaceRaised)
+                        .frame(width: 48, height: 48)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(isTaken ? Color.clear : Color.ccInk.opacity(0.3), lineWidth: 2)
+                            RoundedRectangle(cornerRadius: CCRadius.sm, style: .continuous)
+                                .stroke(isTaken ? Color.clear : Color.ccHairline, lineWidth: 1.5)
                         )
 
                     if isTaken {
                         Image(systemName: "checkmark")
-                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .font(.system(size: 24, weight: .bold, design: .rounded))
                             .foregroundColor(Color.ccPaper)
                     }
                 }
@@ -207,21 +321,27 @@ struct MedicationRowView: View {
                     Text(medication.name)
                         .font(.parentBody())
                         .foregroundColor(Color.ccInk)
-                        .strikethrough(isTaken, color: Color.ccInk.opacity(0.4))
+                        .strikethrough(isTaken, color: Color.ccTextTertiary)
+                        .opacity(isTaken ? 0.7 : 1.0)
 
-                    Text(medication.scheduledTime)
-                        .font(.parentCallout())
-                        .foregroundColor(Color.ccInk.opacity(0.6))
+                    HStack(spacing: 4) {
+                        Image(systemName: "clock")
+                            .font(.caption2)
+                            .foregroundColor(Color.ccTextSecondary)
+                        Text(medication.scheduledTime)
+                            .font(.parentCallout())
+                            .foregroundColor(Color.ccTextSecondary)
+                    }
                 }
 
                 Spacer()
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, CCSpacing.md)
             .padding(.vertical, 14)
             .background(Color.ccLinen)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .clipShape(RoundedRectangle(cornerRadius: CCRadius.md, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: CCRadius.md, style: .continuous)
                     .stroke(Color.ccHairline, lineWidth: 1)
             )
         }
@@ -239,19 +359,19 @@ struct ParentHelpModalView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 24) {
+            VStack(spacing: CCSpacing.lg) {
                 Text("Need Assistance?")
                     .font(.parentHero())
                     .foregroundColor(Color.ccInk)
-                    .padding(.top, 24)
+                    .padding(.top, CCSpacing.lg)
 
                 Text("If this is a medical emergency, please dial 911 immediately.")
                     .font(.parentBody())
                     .foregroundColor(Color.ccAlert)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 24)
+                    .padding(.horizontal, CCSpacing.lg)
 
-                VStack(spacing: 16) {
+                VStack(spacing: CCSpacing.md) {
                     // Call Emergency Services
                     Button(action: {
                         if let url = URL(string: "tel://911"), UIApplication.shared.canOpenURL(url) {
@@ -262,37 +382,26 @@ struct ParentHelpModalView: View {
                             Image(systemName: "phone.fill")
                                 .font(.system(size: 20, weight: .bold, design: .rounded))
                             Text("Call 911 (Emergency)")
-                                .font(.parentHeadline())
                         }
-                        .foregroundColor(Color.ccPaper)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 64)
-                        .background(Color.ccAlert)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
                     }
+                    .buttonStyle(CCPrimaryButtonStyle(tone: .alert))
+                    .frame(height: 64)
 
                     // Call Family Contact
                     Button(action: {
+                        // UX-TODO: wire to a family member's phone
                         dismiss()
                     }) {
                         HStack {
                             Image(systemName: "person.2.fill")
                                 .font(.system(size: 20, weight: .semibold, design: .rounded))
                             Text("Contact Family")
-                                .font(.parentHeadline())
                         }
-                        .foregroundColor(Color.ccInk)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 64)
-                        .background(Color.ccLinen)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(Color.ccHairline, lineWidth: 1)
-                        )
                     }
+                    .buttonStyle(CCSecondaryButtonStyle())
+                    .frame(height: 64)
                 }
-                .padding(.horizontal, 24)
+                .padding(.horizontal, CCSpacing.lg)
 
                 Spacer()
             }
@@ -307,5 +416,6 @@ struct ParentHelpModalView: View {
                 }
             }
         }
+        .presentationDetents([.medium, .large])
     }
 }

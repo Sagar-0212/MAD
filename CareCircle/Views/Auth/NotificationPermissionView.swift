@@ -6,6 +6,9 @@ public struct NotificationPermissionView: View {
     public var onContinue: () -> Void
     public var onSkip: () -> Void
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var bellAngle: Double = 0
+
     public init(
         role: MemberRole = .child,
         onContinue: @escaping () -> Void = {},
@@ -23,17 +26,18 @@ public struct NotificationPermissionView: View {
             // Icon graphic
             ZStack {
                 Circle()
-                    .fill(Color.ccHearth.opacity(0.12))
-                    .frame(width: 100, height: 100)
+                    .fill(Color.ccHearthSoft)
+                    .frame(width: 96, height: 96)
 
                 Image(systemName: "bell.badge.fill")
                     .font(.system(size: 42))
                     .foregroundColor(Color.ccHearth)
+                    .rotationEffect(.degrees(bellAngle))
             }
-            .padding(.bottom, 24)
+            .padding(.bottom, CCSpacing.lg)
 
             // Header
-            VStack(spacing: 10) {
+            VStack(spacing: CCSpacing.xs) {
                 Text(role == .parent ? "Never miss a day" : "Peace of mind alerts")
                     .font(.familyHeadingLarge())
                     .foregroundColor(Color.ccInk)
@@ -43,45 +47,65 @@ public struct NotificationPermissionView: View {
                      ? "CareCircle sends a gentle morning chime to remind you to tap 'I'm okay today'."
                      : "If Dad or Mom doesn't check in by the morning cutoff and grace period expires, we send an instant high-priority notification.")
                     .font(.familyBody())
-                    .foregroundColor(Color.ccInk.opacity(0.65))
+                    .foregroundColor(Color.ccTextSecondary)
                     .multilineTextAlignment(.center)
                     .lineSpacing(3)
-                    .padding(.horizontal, 32)
+                    .padding(.horizontal, CCSpacing.xl)
             }
 
             Spacer()
 
-            // Visual Notification preview pill
-            HStack(spacing: 14) {
-                Image(systemName: "circle.grid.cross.fill")
-                    .font(.system(size: 20))
-                    .foregroundColor(Color.ccHearth)
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("CareCircle")
-                        .font(.familyNumeral(size: 11))
-                        .foregroundColor(Color.ccInk.opacity(0.5))
-
-                    Text(role == .parent ? "Good morning! Time for your daily check-in." : "Alert: Dad has not checked in today.")
-                        .font(.system(size: 13, weight: .semibold, design: .rounded))
-                        .foregroundColor(Color.ccInk)
+            // Visual Notification preview card
+            HStack(alignment: .top, spacing: CCSpacing.sm) {
+                // App icon square
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .fill(Color.ccHearth)
+                        .frame(width: 38, height: 38)
+                    Image(systemName: "circle.grid.cross.fill")
+                        .font(.system(size: 18))
+                        .foregroundColor(Color.ccPaper)
                 }
-                Spacer()
+
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack {
+                        Text("CareCircle")
+                            .font(.familyLabel())
+                            .fontWeight(.bold)
+                            .foregroundColor(Color.ccInk)
+                        Text("· now")
+                            .font(.caption2)
+                            .foregroundColor(Color.ccTextSecondary)
+                        Spacer()
+                    }
+
+                    Text(role == .parent ? "Morning Check-In" : "Daily Status Alert")
+                        .font(.system(.subheadline, design: .rounded, weight: .bold))
+                        .foregroundColor(Color.ccInk)
+
+                    Text(role == .parent
+                         ? "Good morning! Time for your daily check-in."
+                         : "Grace period expired: Arthur has not checked in today.")
+                        .font(.familyCaption())
+                        .foregroundColor(Color.ccTextSecondary)
+                        .lineLimit(2)
+                }
             }
-            .padding(16)
-            .background(Color.ccPaper)
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .padding(CCSpacing.md)
+            .background(Color.ccSurfaceRaised)
+            .clipShape(RoundedRectangle(cornerRadius: CCRadius.lg, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                RoundedRectangle(cornerRadius: CCRadius.lg, style: .continuous)
                     .stroke(Color.ccHairline, lineWidth: 1)
             )
-            .padding(.horizontal, 28)
+            .padding(.horizontal, CCSpacing.lg)
 
             Spacer()
 
             // Actions
-            VStack(spacing: 12) {
+            VStack(spacing: CCSpacing.sm) {
                 Button(action: {
+                    CCHaptics.medium()
                     UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { _, _ in
                         DispatchQueue.main.async {
                             onContinue()
@@ -89,25 +113,32 @@ public struct NotificationPermissionView: View {
                     }
                 }) {
                     Text("Turn on Notifications")
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
-                        .foregroundColor(Color.ccPaper)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 54)
-                        .background(Color.ccHearth)
-                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                 }
+                .buttonStyle(CCPrimaryButtonStyle(tone: .hearth))
 
-                Button(action: onSkip) {
+                Button(action: {
+                    CCHaptics.light()
+                    onSkip()
+                }) {
                     Text("Maybe later")
-                        .font(.system(size: 15, weight: .medium, design: .rounded))
-                        .foregroundColor(Color.ccInk.opacity(0.6))
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 44)
                 }
+                .buttonStyle(CCTextButtonStyle())
             }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 24)
+            .padding(.horizontal, CCSpacing.lg)
+            .padding(.bottom, CCSpacing.lg)
         }
         .paperBackground()
+        .onAppear {
+            if !reduceMotion {
+                withAnimation(Animation.easeInOut(duration: 0.15).repeatCount(4, autoreverses: true)) {
+                    bellAngle = 10
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                    withAnimation(CCMotion.gentle) {
+                        bellAngle = 0
+                    }
+                }
+            }
+        }
     }
 }

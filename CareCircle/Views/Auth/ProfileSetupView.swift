@@ -28,36 +28,28 @@ public struct ProfileSetupView: View {
         VStack(spacing: 0) {
             // Navigation
             HStack {
-                Button(action: onBack) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 15, weight: .semibold))
-                        Text("Back")
-                            .font(.system(size: 15, weight: .medium, design: .rounded))
-                    }
-                    .foregroundColor(Color.ccInk)
-                }
+                CCBackButton(action: onBack)
                 Spacer()
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 16)
-            .padding(.bottom, 20)
+            .padding(.horizontal, CCSpacing.lg)
+            .padding(.top, CCSpacing.sm)
+            .padding(.bottom, CCSpacing.sm)
 
             ScrollView {
-                VStack(alignment: .leading, spacing: 28) {
+                VStack(alignment: .leading, spacing: CCSpacing.lg) {
                     // Header
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: CCSpacing.xs) {
                         Text("Welcome to CareCircle")
                             .font(.familyHeadingLarge())
                             .foregroundColor(Color.ccInk)
 
                         Text("How will you be using this device?")
                             .font(.familyBody())
-                            .foregroundColor(Color.ccInk.opacity(0.65))
+                            .foregroundColor(Color.ccTextSecondary)
                     }
 
                     // Role Selection Cards
-                    VStack(spacing: 14) {
+                    VStack(spacing: CCSpacing.sm) {
                         RoleSelectionCard(
                             role: .parent,
                             isSelected: selectedRole == .parent,
@@ -65,9 +57,11 @@ public struct ProfileSetupView: View {
                             title: "Parent Mode",
                             description: "Simple, high-contrast screen with one large daily check-in button and medication reminders."
                         ) {
-                            selectedRole = .parent
-                            let impact = UIImpactFeedbackGenerator(style: .light)
-                            impact.impactOccurred()
+                            withAnimation(CCMotion.snappy) {
+                                selectedRole = .parent
+                            }
+                            CCHaptics.light()
+                            isNameFocused = true
                         }
 
                         RoleSelectionCard(
@@ -77,53 +71,50 @@ public struct ProfileSetupView: View {
                             title: "Family Caregiver",
                             description: "Coordinate with siblings, monitor parents' check-in status, manage health notes, and receive alerts."
                         ) {
-                            selectedRole = .child
-                            let impact = UIImpactFeedbackGenerator(style: .light)
-                            impact.impactOccurred()
+                            withAnimation(CCMotion.snappy) {
+                                selectedRole = .child
+                            }
+                            CCHaptics.light()
+                            isNameFocused = true
                         }
                     }
 
                     // Display Name Field
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("YOUR NAME")
-                            .font(.familyNumeral(size: 11))
-                            .foregroundColor(Color.ccInk.opacity(0.45))
-                            .tracking(1.2)
-
+                    CCFieldContainer(
+                        label: "Your Name",
+                        icon: "person",
+                        isFocused: isNameFocused
+                    ) {
                         TextField(selectedRole == .parent ? "e.g. Dad (Arthur)" : "e.g. Alice", text: $displayName)
-                            .font(.system(size: 18, weight: .medium, design: .rounded))
+                            .font(.familyBody())
                             .foregroundColor(Color.ccInk)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 14)
-                            .background(Color.ccLinen.opacity(0.6))
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                    .stroke(isNameFocused ? Color.ccHearth : Color.ccHairline, lineWidth: 1.5)
-                            )
+                            .textContentType(.name)
+                            .submitLabel(.done)
+                            .onSubmit {
+                                if isValid {
+                                    onContinue()
+                                }
+                            }
                             .focused($isNameFocused)
                     }
                 }
-                .padding(.horizontal, 24)
+                .padding(.horizontal, CCSpacing.lg)
+                .padding(.vertical, CCSpacing.xs)
             }
-
-            Spacer()
-
-            // CTA Button
-            VStack(spacing: 12) {
-                Button(action: onContinue) {
-                    Text("Continue")
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
-                        .foregroundColor(Color.ccPaper)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 54)
-                        .background(isValid ? Color.ccHearth : Color.ccInk.opacity(0.2))
-                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                }
-                .disabled(!isValid)
+            .scrollDismissesKeyboard(.interactively)
+        }
+        .safeAreaInset(edge: .bottom) {
+            Button(action: {
+                CCHaptics.medium()
+                onContinue()
+            }) {
+                Text("Continue")
             }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 24)
+            .buttonStyle(CCPrimaryButtonStyle(tone: .hearth))
+            .disabled(!isValid)
+            .padding(.horizontal, CCSpacing.lg)
+            .padding(.vertical, CCSpacing.sm)
+            .background(Color.ccPaper)
         }
         .paperBackground()
     }
@@ -139,21 +130,21 @@ private struct RoleSelectionCard: View {
 
     var body: some View {
         Button(action: onSelect) {
-            HStack(alignment: .top, spacing: 16) {
+            HStack(alignment: .top, spacing: CCSpacing.md) {
                 ZStack {
                     Circle()
-                        .fill(isSelected ? Color.ccHearth.opacity(0.15) : Color.ccLinen)
-                        .frame(width: 44, height: 44)
+                        .fill(isSelected ? Color.ccHearthSoft : Color.ccLinen)
+                        .frame(width: 48, height: 48)
 
                     Image(systemName: icon)
-                        .font(.system(size: 19, weight: .semibold))
-                        .foregroundColor(isSelected ? Color.ccHearth : Color.ccInk.opacity(0.6))
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(isSelected ? Color.ccHearth : Color.ccTextSecondary)
                 }
 
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: 4) {
                     HStack {
                         Text(title)
-                            .font(.system(size: 17, weight: .bold, design: .rounded))
+                            .font(.familyBodyBold())
                             .foregroundColor(Color.ccInk)
 
                         Spacer()
@@ -170,20 +161,21 @@ private struct RoleSelectionCard: View {
                     }
 
                     Text(description)
-                        .font(.familyBody())
-                        .foregroundColor(Color.ccInk.opacity(0.65))
+                        .font(.familyCaption())
+                        .foregroundColor(Color.ccTextSecondary)
                         .lineSpacing(2)
                         .multilineTextAlignment(.leading)
                 }
             }
-            .padding(18)
-            .background(isSelected ? Color.ccLinen.opacity(0.8) : Color.ccLinen.opacity(0.35))
-            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .padding(CCSpacing.md)
+            .background(isSelected ? Color.ccHearthSoft.opacity(0.4) : Color.ccSurfaceRaised)
+            .clipShape(RoundedRectangle(cornerRadius: CCRadius.lg, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .stroke(isSelected ? Color.ccHearth : Color.ccHairline, lineWidth: isSelected ? 2 : 1)
+                RoundedRectangle(cornerRadius: CCRadius.lg, style: .continuous)
+                    .stroke(isSelected ? Color.ccHearth : Color.ccHairline, lineWidth: isSelected ? 1.5 : 1)
             )
         }
         .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
     }
 }

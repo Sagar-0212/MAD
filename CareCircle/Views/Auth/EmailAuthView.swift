@@ -45,25 +45,17 @@ public struct EmailAuthView: View {
         VStack(spacing: 0) {
             // Top Navigation Bar
             HStack {
-                Button(action: onBack) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 15, weight: .semibold))
-                        Text("Back")
-                            .font(.system(size: 15, weight: .medium, design: .rounded))
-                    }
-                    .foregroundColor(Color.ccInk)
-                }
+                CCBackButton(action: onBack)
                 Spacer()
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 16)
-            .padding(.bottom, 20)
+            .padding(.horizontal, CCSpacing.lg)
+            .padding(.top, CCSpacing.sm)
+            .padding(.bottom, CCSpacing.sm)
 
             ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
+                VStack(alignment: .leading, spacing: CCSpacing.lg) {
                     // Title & Description
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: CCSpacing.xs) {
                         Text(mode == .signUp ? "Create your account" : "Welcome back")
                             .font(.familyHeadingLarge())
                             .foregroundColor(Color.ccInk)
@@ -72,193 +64,152 @@ public struct EmailAuthView: View {
                             ? "Sign up with your email to coordinate care securely on the free plan."
                             : "Enter your email and password to access your family circle.")
                             .font(.familyBody())
-                            .foregroundColor(Color.ccInk.opacity(0.65))
+                            .foregroundColor(Color.ccTextSecondary)
                             .lineSpacing(3)
                     }
 
                     // Mode Toggle (Sign In vs Create Account)
-                    HStack(spacing: 0) {
-                        Button(action: {
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
-                                mode = .signUp
-                            }
-                        }) {
-                            Text("New Account")
-                                .font(.system(size: 14, weight: .semibold, design: .rounded))
-                                .foregroundColor(mode == .signUp ? Color.ccPaper : Color.ccInk)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 40)
-                                .background(mode == .signUp ? Color.ccHearth : Color.clear)
-                                .clipShape(Capsule())
-                        }
-
-                        Button(action: {
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
-                                mode = .signIn
-                            }
-                        }) {
-                            Text("Sign In")
-                                .font(.system(size: 14, weight: .semibold, design: .rounded))
-                                .foregroundColor(mode == .signIn ? Color.ccPaper : Color.ccInk)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 40)
-                                .background(mode == .signIn ? Color.ccHearth : Color.clear)
-                                .clipShape(Capsule())
-                        }
-                    }
-                    .padding(4)
-                    .background(Color.ccLinen)
-                    .clipShape(Capsule())
+                    CCSegmentedToggle(
+                        options: [
+                            (EmailAuthMode.signUp, "New Account"),
+                            (EmailAuthMode.signIn, "Sign In")
+                        ],
+                        selection: $mode
+                    )
 
                     // Email Input Box
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("EMAIL ADDRESS")
-                            .font(.familyNumeral(size: 11))
-                            .foregroundColor(Color.ccInk.opacity(0.45))
-                            .tracking(1.2)
-
+                    CCFieldContainer(
+                        label: "Email Address",
+                        icon: "envelope",
+                        isFocused: focusedField == .email
+                    ) {
                         TextField("name@example.com", text: $email)
+                            .font(.familyBody())
+                            .foregroundColor(Color.ccInk)
                             .keyboardType(.emailAddress)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled(true)
-                            .font(.system(size: 17, weight: .medium, design: .rounded))
-                            .foregroundColor(Color.ccInk)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 14)
-                            .background(Color.ccLinen.opacity(0.6))
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                    .stroke(focusedField == .email ? Color.ccHearth : Color.ccHairline, lineWidth: 1.5)
-                            )
+                            .textContentType(.username)
+                            .submitLabel(.next)
+                            .onSubmit {
+                                focusedField = .password
+                            }
                             .focused($focusedField, equals: .email)
                     }
 
                     // Password Input Box
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("PASSWORD")
-                            .font(.familyNumeral(size: 11))
-                            .foregroundColor(Color.ccInk.opacity(0.45))
-                            .tracking(1.2)
-
-                        SecureField("Minimum 6 characters", text: $password)
-                            .font(.system(size: 17, weight: .medium, design: .rounded))
-                            .foregroundColor(Color.ccInk)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 14)
-                            .background(Color.ccLinen.opacity(0.6))
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                    .stroke(focusedField == .password ? Color.ccHearth : Color.ccHairline, lineWidth: 1.5)
-                            )
-                            .focused($focusedField, equals: .password)
-
-                        if password.count > 0 && password.count < 6 {
-                            Text("Password must be at least 6 characters")
-                                .font(.familyCaption())
-                                .foregroundColor(Color.ccAlert)
-                        }
+                    CCFieldContainer(
+                        label: "Password",
+                        icon: "lock",
+                        isFocused: focusedField == .password,
+                        error: password.count > 0 && password.count < 6 ? "Password must be at least 6 characters" : nil
+                    ) {
+                        CCSecureFieldToggle(
+                            placeholder: "Minimum 6 characters",
+                            text: $password,
+                            textContentType: (mode == .signUp ? .newPassword : .password),
+                            submitLabel: .go,
+                            onSubmit: {
+                                if isValidInput {
+                                    onSubmit()
+                                }
+                            }
+                        )
+                        .focused($focusedField, equals: .password)
                     }
 
                     // Demo Credentials Helper Buttons
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("QUICK DEMO CREDENTIALS")
-                            .font(.familyNumeral(size: 11))
-                            .foregroundColor(Color.ccInk.opacity(0.45))
-                            .tracking(1.2)
+                    VStack(alignment: .leading, spacing: CCSpacing.xs) {
+                        Text("TRY A DEMO ACCOUNT")
+                            .font(.familyLabel())
+                            .foregroundColor(Color.ccTextSecondary)
+                            .tracking(1.0)
 
-                        HStack(spacing: 8) {
+                        HStack(spacing: CCSpacing.xs) {
                             Button(action: {
+                                CCHaptics.light()
                                 email = "parent@carecircle.demo"
                                 password = "password123"
                                 mode = .signIn
                             }) {
-                                HStack(spacing: 5) {
+                                HStack(spacing: 6) {
                                     Image(systemName: "person.fill")
-                                        .font(.system(size: 11))
+                                        .font(.system(.caption2, design: .rounded, weight: .bold))
                                     Text("Parent Demo")
-                                        .font(.system(size: 13, weight: .semibold, design: .rounded))
+                                        .font(.familyCaption())
+                                        .fontWeight(.semibold)
                                 }
                                 .foregroundColor(Color.ccInk)
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 8)
-                                .background(Color.ccLinen)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.ccHairline, lineWidth: 1))
+                                .background(Color.ccSurfaceRaised)
+                                .clipShape(Capsule())
+                                .overlay(Capsule().stroke(Color.ccHairline, lineWidth: 1))
                             }
 
                             Button(action: {
+                                CCHaptics.light()
                                 email = "sarah@carecircle.demo"
                                 password = "password123"
                                 mode = .signIn
                             }) {
-                                HStack(spacing: 5) {
+                                HStack(spacing: 6) {
                                     Image(systemName: "person.2.fill")
-                                        .font(.system(size: 11))
+                                        .font(.system(.caption2, design: .rounded, weight: .bold))
                                     Text("Caregiver Demo")
-                                        .font(.system(size: 13, weight: .semibold, design: .rounded))
+                                        .font(.familyCaption())
+                                        .fontWeight(.semibold)
                                 }
                                 .foregroundColor(Color.ccInk)
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 8)
-                                .background(Color.ccLinen)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.ccHairline, lineWidth: 1))
+                                .background(Color.ccSurfaceRaised)
+                                .clipShape(Capsule())
+                                .overlay(Capsule().stroke(Color.ccHairline, lineWidth: 1))
                             }
                         }
                     }
-                    .padding(.top, 2)
 
-                    // Free Spark Plan reassurance
-                    HStack(spacing: 8) {
+                    // Shield reassurance
+                    HStack(spacing: CCSpacing.xs) {
                         Image(systemName: "checkmark.shield.fill")
-                            .font(.system(size: 13))
+                            .font(.system(size: 14))
                             .foregroundColor(Color.ccHearth)
-                        Text("Free Email Authentication (No SMS fees or billing required)")
+                        Text("Free, secure email sign-in, no SMS fees.")
                             .font(.familyCaption())
-                            .foregroundColor(Color.ccInk.opacity(0.6))
+                            .foregroundColor(Color.ccTextSecondary)
                     }
-                    .padding(.top, 4)
+                    .padding(.top, CCSpacing.xxs)
                 }
-                .padding(.horizontal, 24)
+                .padding(.horizontal, CCSpacing.lg)
+                .padding(.vertical, CCSpacing.xs)
             }
-
-            Spacer()
-
-            // Submit Button
-            VStack(spacing: 12) {
+            .scrollDismissesKeyboard(.interactively)
+        }
+        .safeAreaInset(edge: .bottom) {
+            VStack(spacing: CCSpacing.xs) {
                 Button(action: {
-                    let impact = UIImpactFeedbackGenerator(style: .medium)
-                    impact.impactOccurred()
+                    CCHaptics.medium()
                     onSubmit()
                 }) {
                     Text(mode == .signUp ? "Create Account & Continue" : "Sign In & Continue")
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
-                        .foregroundColor(Color.ccPaper)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 54)
-                        .background(isValidInput ? Color.ccHearth : Color.ccInk.opacity(0.2))
-                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                 }
+                .buttonStyle(CCPrimaryButtonStyle(tone: .hearth))
                 .disabled(!isValidInput)
 
                 if let onGuestAccess = onGuestAccess {
                     Button(action: {
-                        let impact = UIImpactFeedbackGenerator(style: .light)
-                        impact.impactOccurred()
+                        CCHaptics.light()
                         onGuestAccess()
                     }) {
                         Text("Continue as Instant Guest / Demo")
-                            .font(.system(size: 14, weight: .medium, design: .rounded))
-                            .foregroundColor(Color.ccInk.opacity(0.7))
-                            .underline()
-                            .padding(.vertical, 4)
                     }
+                    .buttonStyle(CCTextButtonStyle())
                 }
             }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 24)
+            .padding(.horizontal, CCSpacing.lg)
+            .padding(.vertical, CCSpacing.sm)
+            .background(Color.ccPaper)
         }
         .paperBackground()
         .onAppear {

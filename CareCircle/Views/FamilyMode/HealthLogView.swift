@@ -27,79 +27,112 @@ public struct HealthLogView: View {
     public var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 20) {
+                VStack(spacing: CCSpacing.md) {
                     // Header
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Health & Prescription Log")
-                            .font(.familyHeadingLarge())
-                            .foregroundColor(Color.ccInk)
-                        Text("Shared prescriptions, doctor visit records, and reports")
-                            .font(.familyCaption())
-                            .foregroundColor(Color.ccInk.opacity(0.6))
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 24)
-                    .padding(.top, 16)
+                    CCScreenHeader(
+                        title: "Health & Prescription Log",
+                        subtitle: "Shared prescriptions, doctor visit records, and reports"
+                    )
+                    .padding(.horizontal, CCSpacing.lg)
+                    .padding(.top, CCSpacing.sm)
 
                     // Search & Filter
-                    HStack {
+                    HStack(spacing: CCSpacing.xs) {
                         Image(systemName: "magnifyingglass")
-                            .foregroundColor(Color.ccInk.opacity(0.4))
+                            .foregroundColor(Color.ccTextSecondary)
                         TextField("Filter by doctor name or tag...", text: $searchText)
                             .font(.familyBody())
+
+                        if !searchText.isEmpty {
+                            Button(action: {
+                                searchText = ""
+                            }) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundColor(Color.ccTextSecondary)
+                                    .frame(width: 24, height: 24)
+                            }
+                            .accessibilityLabel("Clear search")
+                        }
                     }
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, CCSpacing.md)
                     .padding(.vertical, 12)
-                    .background(Color.ccLinen)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .background(Color.ccSurfaceRaised)
+                    .clipShape(RoundedRectangle(cornerRadius: CCRadius.md, style: .continuous))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 12)
+                        RoundedRectangle(cornerRadius: CCRadius.md, style: .continuous)
                             .stroke(Color.ccHairline, lineWidth: 1)
                     )
-                    .padding(.horizontal, 24)
+                    .padding(.horizontal, CCSpacing.lg)
 
-                    // Chronological Records List
-                    if filteredRecords.isEmpty {
-                        VStack(spacing: 12) {
-                            Image(systemName: "doc.text.magnifyingglass")
-                                .font(.system(size: 36))
-                                .foregroundColor(Color.ccInk.opacity(0.3))
-                                .padding(.top, 24)
-                            Text("No health records match your filter")
-                                .font(.familyBody())
-                                .foregroundColor(Color.ccInk.opacity(0.5))
-                        }
+                    // Record Count
+                    HStack {
+                        Text("\(filteredRecords.count) \(filteredRecords.count == 1 ? "record" : "records")")
+                            .font(.familyCaption())
+                            .foregroundColor(Color.ccTextSecondary)
+                        Spacer()
+                    }
+                    .padding(.horizontal, CCSpacing.lg)
+
+                    // Records List / Empty State
+                    if service.healthRecords.isEmpty {
+                        CCEmptyState(
+                            icon: "doc.text.fill",
+                            title: "No Records Yet",
+                            message: "Add prescriptions or visit notes to share health updates with family.",
+                            actionTitle: "Add First Record",
+                            action: {
+                                showingAddRecordSheet = true
+                            }
+                        )
+                        .padding(.horizontal, CCSpacing.lg)
+                        .padding(.top, CCSpacing.sm)
+                    } else if filteredRecords.isEmpty {
+                        CCEmptyState(
+                            icon: "doc.text.magnifyingglass",
+                            title: "No Matching Records",
+                            message: "No health records match '\(searchText)'."
+                        )
+                        .padding(.horizontal, CCSpacing.lg)
+                        .padding(.top, CCSpacing.sm)
                     } else {
-                        VStack(spacing: 14) {
+                        VStack(spacing: 12) {
                             ForEach(filteredRecords) { record in
                                 HealthRecordCard(record: record, service: service)
                             }
                         }
-                        .padding(.horizontal, 24)
+                        .padding(.horizontal, CCSpacing.lg)
                     }
 
                     // Add Record Button
                     Button(action: {
+                        CCHaptics.light()
                         showingAddRecordSheet = true
                     }) {
-                        HStack {
+                        HStack(spacing: 8) {
                             Image(systemName: "plus.circle")
                             Text("Add Prescription / Health Record")
-                                .font(.familyBodyBold())
                         }
-                        .foregroundColor(Color.ccPaper)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 52)
-                        .background(Color.ccInk)
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
                     }
-                    .padding(.horizontal, 24)
-                    .padding(.top, 8)
+                    .buttonStyle(CCPrimaryButtonStyle(tone: .hearth))
+                    .padding(.horizontal, CCSpacing.lg)
+                    .padding(.top, CCSpacing.xs)
 
-                    Spacer(minLength: 40)
+                    Spacer(minLength: 96)
                 }
             }
             .paperBackground()
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        showingAddRecordSheet = true
+                    }) {
+                        Image(systemName: "plus")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(Color.ccInk)
+                    }
+                    .accessibilityLabel("Add Health Record")
+                }
+            }
             .sheet(isPresented: $showingAddRecordSheet) {
                 AddHealthRecordSheet(service: service)
             }
@@ -113,56 +146,57 @@ struct HealthRecordCard: View {
     let service: FirebaseService
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(record.doctorName)
-                        .font(.familyBodyBold())
-                        .foregroundColor(Color.ccInk)
+                HStack(spacing: CCSpacing.xs) {
+                    Image(systemName: "stethoscope")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(Color.ccHearth)
 
-                    Text("Visit: \(formattedDate(record.visitDate))")
-                        .font(.familyNumeral(size: 13))
-                        .foregroundColor(Color.ccInk.opacity(0.6))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(record.doctorName)
+                            .font(.familyBodyBold())
+                            .foregroundColor(Color.ccInk)
+
+                        Text("Visit: \(CCFormatters.mediumDate.string(from: record.visitDate))")
+                            .font(.familyCaption())
+                            .foregroundColor(Color.ccTextSecondary)
+                    }
                 }
 
                 Spacer()
 
                 if let followUp = record.followUpDate {
-                    VStack(alignment: .trailing, spacing: 2) {
-                        Text("Follow-up")
-                            .font(.familyCaption())
-                            .foregroundColor(Color.ccHearth)
-                        Text(formattedDate(followUp))
-                            .font(.familyNumeral(size: 12))
-                            .foregroundColor(Color.ccInk.opacity(0.7))
-                    }
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.ccHearth.opacity(0.10))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    let daysUntil = Calendar.current.dateComponents([.day], from: Date(), to: followUp).day ?? 0
+                    let tone: CCStatusTone = (daysUntil >= 0 && daysUntil <= 7) ? .waiting : .hearth
+                    CCStatusChip(
+                        text: "Follow-up \(CCFormatters.dayMonth.string(from: followUp))",
+                        tone: tone,
+                        icon: "calendar"
+                    )
                 }
             }
 
-            // Photo Placeholder / Display Card
-            HStack(spacing: 12) {
+            // Photo Placeholder / Document Card
+            HStack(spacing: CCSpacing.sm) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(Color.ccPaper)
-                        .frame(width: 60, height: 60)
+                    RoundedRectangle(cornerRadius: CCRadius.sm, style: .continuous)
+                        .fill(Color.ccSurfaceRaised)
+                        .frame(width: 54, height: 54)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 10)
+                            RoundedRectangle(cornerRadius: CCRadius.sm, style: .continuous)
                                 .stroke(Color.ccHairline, lineWidth: 1)
                         )
 
                     Image(systemName: "doc.viewfinder")
-                        .font(.system(size: 24))
-                        .foregroundColor(Color.ccInk.opacity(0.5))
+                        .font(.system(size: 22))
+                        .foregroundColor(Color.ccTextSecondary)
                 }
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Prescription Document")
                         .font(.familyCaption())
-                        .foregroundColor(Color.ccInk.opacity(0.7))
+                        .foregroundColor(Color.ccTextSecondary)
 
                     // Tags
                     FlowLayout(spacing: 6) {
@@ -172,7 +206,7 @@ struct HealthRecordCard: View {
                                 .foregroundColor(Color.ccInk)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 3)
-                                .background(Color.ccPaper)
+                                .background(Color.ccSurfaceRaised)
                                 .clipShape(Capsule())
                                 .overlay(
                                     Capsule().stroke(Color.ccHairline, lineWidth: 1)
@@ -182,19 +216,13 @@ struct HealthRecordCard: View {
                 }
             }
         }
-        .padding(16)
+        .padding(CCSpacing.md)
         .background(Color.ccLinen)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(RoundedRectangle(cornerRadius: CCRadius.md, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: CCRadius.md, style: .continuous)
                 .stroke(Color.ccHairline, lineWidth: 1)
         )
-    }
-
-    private func formattedDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        return formatter.string(from: date)
     }
 }
 
@@ -214,12 +242,12 @@ struct AddHealthRecordSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("Document Information").font(.familyCaption())) {
+                Section(header: Text("DOCUMENT INFORMATION").font(.familyLabel())) {
                     TextField("Doctor / Clinic Name", text: $doctorName)
                         .font(.familyBody())
 
                     Picker("Family Member", selection: $selectedMemberId) {
-                        Text("Select Member").tag("")
+                        Text("Select Member (Default: Organizer)").tag("")
                         ForEach(service.members) { m in
                             Text(m.displayName).tag(m.id)
                         }
@@ -237,31 +265,36 @@ struct AddHealthRecordSheet: View {
                             .font(.familyBody())
                     }
                 }
+                .listRowBackground(Color.ccSurfaceRaised)
 
-                Section(header: Text("Photo Attachment").font(.familyCaption())) {
-                    HStack(alignment: .top, spacing: 12) {
-                        Image(systemName: "photo.badge.exclamationmark")
-                            .font(.system(size: 20))
-                            .foregroundColor(Color.ccInk.opacity(0.45))
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Photo attachment temporarily unavailable")
+                Section(header: Text("PHOTO ATTACHMENT").font(.familyLabel())) {
+                    HStack(alignment: .top, spacing: 10) {
+                        Image(systemName: "info.circle")
+                            .font(.system(size: 18))
+                            .foregroundColor(Color.ccTextSecondary)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Document & photo uploads disabled")
                                 .font(.familyBodyBold())
                                 .foregroundColor(Color.ccInk)
-                            Text("Document and photo uploads are currently disabled. You can still track visit dates, doctor details, follow-ups, and tags.")
+                            Text("You can still track visit dates, doctor details, follow-ups, and tags.")
                                 .font(.familyCaption())
-                                .foregroundColor(Color.ccInk.opacity(0.6))
+                                .foregroundColor(Color.ccTextSecondary)
                         }
                     }
                     .padding(.vertical, 4)
                 }
+                .listRowBackground(Color.ccSurfaceRaised)
 
-                Section(header: Text("Tags").font(.familyCaption())) {
+                Section(header: Text("TAGS").font(.familyLabel())) {
                     HStack {
                         TextField("Add tag (e.g. Blood Test, Heart)", text: $tagInput)
                             .font(.familyBody())
                         Button("Add") {
-                            if !tagInput.isEmpty {
-                                tags.append(tagInput)
+                            let trimmed = tagInput.trimmingCharacters(in: .whitespaces)
+                            if !trimmed.isEmpty && !tags.contains(trimmed) {
+                                CCHaptics.light()
+                                tags.append(trimmed)
                                 tagInput = ""
                             }
                         }
@@ -269,11 +302,33 @@ struct AddHealthRecordSheet: View {
                         .foregroundColor(Color.ccHearth)
                     }
 
-                    ForEach(tags, id: \.self) { tag in
-                        Text(tag).font(.familyCaption())
+                    if !tags.isEmpty {
+                        FlowLayout(spacing: 6) {
+                            ForEach(tags, id: \.self) { tag in
+                                HStack(spacing: 4) {
+                                    Text(tag)
+                                        .font(.familyCaption())
+                                        .foregroundColor(Color.ccInk)
+                                    Button(action: {
+                                        tags.removeAll(where: { $0 == tag })
+                                    }) {
+                                        Image(systemName: "xmark")
+                                            .font(.system(size: 9, weight: .bold))
+                                            .foregroundColor(Color.ccTextSecondary)
+                                    }
+                                }
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .background(Color.ccLinen)
+                                .clipShape(Capsule())
+                            }
+                        }
+                        .padding(.vertical, 4)
                     }
                 }
+                .listRowBackground(Color.ccSurfaceRaised)
             }
+            .ccFormStyle()
             .navigationTitle("New Health Record")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -288,6 +343,7 @@ struct AddHealthRecordSheet: View {
                     Button("Save") {
                         guard !doctorName.isEmpty else { return }
                         let memberId = selectedMemberId.isEmpty ? (service.members.first?.id ?? "") : selectedMemberId
+                        CCHaptics.success()
                         service.addHealthRecord(
                             familyMemberId: memberId,
                             doctorName: doctorName,
@@ -304,6 +360,7 @@ struct AddHealthRecordSheet: View {
                 }
             }
         }
+        .presentationDetents([.medium, .large])
     }
 }
 

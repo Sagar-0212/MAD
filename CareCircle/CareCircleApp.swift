@@ -41,6 +41,8 @@ struct CareCircleApp: App {
         // Configure standard UIKit appearances to match CareCircle Paper & Ink tokens
         let paperUIColor = UIColor(Color.ccPaper)
         let inkUIColor = UIColor(Color.ccInk)
+        let hearthUIColor = UIColor(Color.ccHearth)
+        let secondaryUIColor = UIColor(Color.ccTextSecondary)
 
         // Navigation Bar
         let navAppearance = UINavigationBarAppearance()
@@ -58,6 +60,16 @@ struct CareCircleApp: App {
         tabAppearance.configureWithOpaqueBackground()
         tabAppearance.backgroundColor = paperUIColor
         tabAppearance.shadowColor = UIColor(Color.ccHairline)
+
+        let itemAppearance = UITabBarItemAppearance()
+        itemAppearance.normal.iconColor = secondaryUIColor
+        itemAppearance.normal.titleTextAttributes = [.foregroundColor: secondaryUIColor]
+        itemAppearance.selected.iconColor = hearthUIColor
+        itemAppearance.selected.titleTextAttributes = [.foregroundColor: hearthUIColor]
+
+        tabAppearance.stackedLayoutAppearance = itemAppearance
+        tabAppearance.inlineLayoutAppearance = itemAppearance
+        tabAppearance.compactInlineLayoutAppearance = itemAppearance
 
         UITabBar.appearance().standardAppearance = tabAppearance
         UITabBar.appearance().scrollEdgeAppearance = tabAppearance

@@ -6,6 +6,7 @@ import SwiftUI
 public struct FamilyCircleView: View {
     @ObservedObject var service: FirebaseService
     @State private var showingInviteSheet: Bool = false
+    @State private var isCopied: Bool = false
 
     public init(service: FirebaseService = .shared) {
         self.service = service
@@ -14,131 +15,162 @@ public struct FamilyCircleView: View {
     public var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 24) {
-                    // Header Card
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(service.currentFamily.name)
-                            .font(.familyHeadingLarge())
-                            .foregroundColor(Color.ccInk)
-                        Text("Private family coordination circle")
-                            .font(.familyCaption())
-                            .foregroundColor(Color.ccInk.opacity(0.6))
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 24)
-                    .padding(.top, 16)
+                VStack(spacing: CCSpacing.lg) {
+                    // Header
+                    CCScreenHeader(
+                        title: service.currentFamily.name,
+                        subtitle: "Private family coordination circle"
+                    )
+                    .padding(.horizontal, CCSpacing.lg)
+                    .padding(.top, CCSpacing.sm)
 
                     // Invite Code Card
                     if let code = service.currentFamily.inviteCode, !code.isEmpty {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text("CIRCLE INVITE CODE")
-                                    .font(.familyNumeral(size: 11))
-                                    .foregroundColor(Color.ccInk.opacity(0.45))
-                                    .tracking(1.2)
+                        VStack(alignment: .leading, spacing: CCSpacing.sm) {
+                            Text("CIRCLE INVITE CODE")
+                                .font(.familyLabel())
+                                .foregroundColor(Color.ccTextSecondary)
+                                .tracking(1.0)
+
+                            HStack {
                                 Text(code)
-                                    .font(.system(size: 20, weight: .bold, design: .monospaced))
+                                    .font(.system(.title2, design: .monospaced, weight: .bold))
                                     .foregroundColor(Color.ccHearth)
-                            }
-                            Spacer()
-                            Button(action: {
-                                UIPasteboard.general.string = code
-                            }) {
-                                HStack(spacing: 4) {
-                                    Image(systemName: "doc.on.doc")
-                                    Text("Copy")
+                                    .tracking(2.0)
+
+                                Spacer()
+
+                                HStack(spacing: 8) {
+                                    // Copy Button
+                                    Button(action: {
+                                        UIPasteboard.general.string = code
+                                        CCHaptics.success()
+                                        UIAccessibility.post(notification: .announcement, argument: "Invite code copied to clipboard.")
+                                        isCopied = true
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                                            isCopied = false
+                                        }
+                                    }) {
+                                        HStack(spacing: 4) {
+                                            Image(systemName: isCopied ? "checkmark" : "doc.on.doc")
+                                            Text(isCopied ? "Copied ✓" : "Copy")
+                                        }
+                                        .font(.familyCaption())
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(Color.ccInk)
+                                        .padding(.horizontal, 12)
+                                        .frame(height: 36)
+                                        .background(Color.ccPaper)
+                                        .clipShape(Capsule())
+                                        .overlay(Capsule().stroke(Color.ccHairline, lineWidth: 1))
+                                    }
+
+                                    // Share Link
+                                    ShareLink(
+                                        item: "Join our CareCircle family circle with invite code: \(code)",
+                                        subject: Text("Join our CareCircle"),
+                                        message: Text("Join our CareCircle family circle with invite code: \(code)")
+                                    ) {
+                                        HStack(spacing: 4) {
+                                            Image(systemName: "square.and.arrow.up")
+                                            Text("Share")
+                                        }
+                                        .font(.familyCaption())
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(Color.ccInk)
+                                        .padding(.horizontal, 12)
+                                        .frame(height: 36)
+                                        .background(Color.ccPaper)
+                                        .clipShape(Capsule())
+                                        .overlay(Capsule().stroke(Color.ccHairline, lineWidth: 1))
+                                    }
                                 }
-                                .font(.familyCaption())
-                                .foregroundColor(Color.ccInk)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background(Color.ccPaper)
-                                .clipShape(Capsule())
-                                .overlay(Capsule().stroke(Color.ccHairline, lineWidth: 1))
                             }
                         }
-                        .padding(14)
-                        .background(Color.ccLinen.opacity(0.7))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.ccHairline, lineWidth: 1))
-                        .padding(.horizontal, 24)
+                        .padding(CCSpacing.md)
+                        .background(Color.ccSurfaceRaised)
+                        .clipShape(RoundedRectangle(cornerRadius: CCRadius.lg, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: CCRadius.lg, style: .continuous)
+                                .stroke(Color.ccHairline, lineWidth: 1)
+                        )
+                        .padding(.horizontal, CCSpacing.lg)
                     }
 
                     // Members List
-                    VStack(alignment: .leading, spacing: 14) {
-                        HStack {
-                            Text("Circle Members (\(service.members.count))")
-                                .font(.familyHeadingMedium())
-                                .foregroundColor(Color.ccInk)
-                            Spacer()
-                        }
-                        .padding(.horizontal, 24)
+                    VStack(alignment: .leading, spacing: CCSpacing.sm) {
+                        CCSectionHeader(title: "Circle Members (\(service.members.count))")
+                            .padding(.horizontal, CCSpacing.lg)
 
-                        VStack(spacing: 12) {
+                        VStack(spacing: 10) {
                             ForEach(service.members) { member in
-                                HStack(spacing: 16) {
-                                    Circle()
-                                        .fill(member.role == .parent ? Color.ccHearth.opacity(0.15) : Color.ccLinen)
-                                        .frame(width: 48, height: 48)
-                                        .overlay(
-                                            Text(String(member.displayName.prefix(1)))
-                                                .font(.familyHeadingMedium())
-                                                .foregroundColor(member.role == .parent ? Color.ccHearth : Color.ccInk)
-                                        )
+                                let isCurrentUser = member.userId == service.currentUserId
+                                HStack(spacing: CCSpacing.md) {
+                                    CCAvatar(
+                                        name: member.displayName,
+                                        tone: member.role == .parent ? .hearth : .neutral,
+                                        size: 48
+                                    )
 
                                     VStack(alignment: .leading, spacing: 3) {
-                                        Text(member.displayName)
-                                            .font(.familyBodyBold())
-                                            .foregroundColor(Color.ccInk)
+                                        HStack(spacing: 6) {
+                                            Text(member.displayName)
+                                                .font(.familyBodyBold())
+                                                .foregroundColor(Color.ccInk)
+
+                                            if isCurrentUser {
+                                                Text("You")
+                                                    .font(.system(size: 10, weight: .bold, design: .rounded))
+                                                    .foregroundColor(Color.ccHearth)
+                                                    .padding(.horizontal, 6)
+                                                    .padding(.vertical, 2)
+                                                    .background(Color.ccHearthSoft)
+                                                    .clipShape(Capsule())
+                                            }
+                                        }
 
                                         Text(member.email ?? member.phoneNumber)
-                                            .font(.familyNumeral(size: 13))
-                                            .foregroundColor(Color.ccInk.opacity(0.55))
+                                            .font(.familyCaption())
+                                            .foregroundColor(Color.ccTextSecondary)
                                     }
 
                                     Spacer()
 
-                                    Text(member.role == .parent ? "Parent" : "Child")
-                                        .font(.familyCaption())
-                                        .padding(.horizontal, 10)
-                                        .padding(.vertical, 4)
-                                        .background(member.role == .parent ? Color.ccHearth.opacity(0.12) : Color.ccInk.opacity(0.06))
-                                        .foregroundColor(member.role == .parent ? Color.ccHearth : Color.ccInk)
-                                        .clipShape(Capsule())
+                                    CCStatusChip(
+                                        text: member.role == .parent ? "Parent" : "Caregiver",
+                                        tone: member.role == .parent ? .hearth : .neutral,
+                                        icon: member.role == .parent ? "heart.fill" : "person.fill"
+                                    )
                                 }
-                                .padding(.horizontal, 16)
+                                .padding(.horizontal, CCSpacing.md)
                                 .padding(.vertical, 14)
                                 .background(Color.ccLinen)
-                                .clipShape(RoundedRectangle(cornerRadius: 16))
+                                .clipShape(RoundedRectangle(cornerRadius: CCRadius.md, style: .continuous))
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 16)
+                                    RoundedRectangle(cornerRadius: CCRadius.md, style: .continuous)
                                         .stroke(Color.ccHairline, lineWidth: 1)
                                 )
                             }
                         }
-                        .padding(.horizontal, 24)
+                        .padding(.horizontal, CCSpacing.lg)
                     }
 
-                    // Invite Affordance
+                    // Invite Button
                     Button(action: {
+                        CCHaptics.light()
                         showingInviteSheet = true
                     }) {
-                        HStack {
+                        HStack(spacing: 8) {
                             Image(systemName: "envelope.badge.shield.half.filled")
                                 .font(.system(size: 18))
                             Text("Invite Member by Email")
-                                .font(.familyBodyBold())
                         }
-                        .foregroundColor(Color.ccPaper)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 52)
-                        .background(Color.ccInk)
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
                     }
-                    .padding(.horizontal, 24)
-                    .padding(.top, 12)
+                    .buttonStyle(CCPrimaryButtonStyle(tone: .ink))
+                    .padding(.horizontal, CCSpacing.lg)
+                    .padding(.top, CCSpacing.xs)
 
-                    Spacer(minLength: 40)
+                    Spacer(minLength: 96)
                 }
             }
             .paperBackground()
@@ -164,19 +196,24 @@ struct InviteMemberSheet: View {
                 Section(header: Text("Member Details").font(.familyCaption())) {
                     TextField("Full Name (e.g. Grandma Rose)", text: $name)
                         .font(.familyBody())
+                        .textContentType(.name)
 
                     TextField("Email Address (e.g. rose@example.com)", text: $email)
                         .font(.familyBody())
                         .keyboardType(.emailAddress)
                         .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled(true)
+                        .textContentType(.emailAddress)
 
                     Picker("Role", selection: $selectedRole) {
                         Text("Parent").tag(MemberRole.parent)
-                        Text("Child / Caregiver").tag(MemberRole.child)
+                        Text("Caregiver").tag(MemberRole.child)
                     }
-                    .font(.familyBody())
+                    .pickerStyle(.segmented)
                 }
+                .listRowBackground(Color.ccSurfaceRaised)
             }
+            .ccFormStyle()
             .navigationTitle("Invite to Circle")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -190,6 +227,7 @@ struct InviteMemberSheet: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Send Invite") {
                         guard !name.isEmpty, !email.isEmpty else { return }
+                        CCHaptics.success()
                         service.inviteMember(displayName: name, email: email, role: selectedRole)
                         dismiss()
                     }
@@ -199,5 +237,6 @@ struct InviteMemberSheet: View {
                 }
             }
         }
+        .presentationDetents([.medium, .large])
     }
 }
