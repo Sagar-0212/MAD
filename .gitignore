@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+*/.DS_Store
+
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+project.xcworkspace/xcuserdata/
+*.xcuserdatad
+*.moved-aside
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Node & Firebase Emulators
+node_modules/
+functions/node_modules/
+*-debug.log
+firestore-debug.log
+firebase-debug.log
+ui-debug.log

@@ -1,0 +1,443 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0244036D307E43060026C3BD /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0244036C307E43060026C3BD /* GoogleService-Info.plist */; };
+		AA0001012C00000100000001 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = AA0002012C00000100000001 /* FirebaseAuth */; };
+		AA0001022C00000100000001 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = AA0002022C00000100000001 /* FirebaseFirestore */; };
+		CC0001012C00000100000001 /* CareCircleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000012C00000100000001 /* CareCircleApp.swift */; };
+		CC0001022C00000100000001 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000022C00000100000001 /* Colors.swift */; };
+		CC0001032C00000100000001 /* Typography.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000032C00000100000001 /* Typography.swift */; };
+		CC0001042C00000100000001 /* DesignTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000042C00000100000001 /* DesignTokens.swift */; };
+		CC0001052C00000100000001 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000052C00000100000001 /* Models.swift */; };
+		CC0001062C00000100000001 /* FirebaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000062C00000100000001 /* FirebaseService.swift */; };
+		CC0001072C00000100000001 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000072C00000100000001 /* RootView.swift */; };
+		CC0001082C00000100000001 /* ParentHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000082C00000100000001 /* ParentHomeView.swift */; };
+		CC0001092C00000100000001 /* RadialStatusCirclesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000092C00000100000001 /* RadialStatusCirclesView.swift */; };
+		CC00010A2C00000100000001 /* FamilyDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC00000A2C00000100000001 /* FamilyDashboardView.swift */; };
+		CC00010B2C00000100000001 /* ResolveAlertSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC00000B2C00000100000001 /* ResolveAlertSheet.swift */; };
+		CC00010C2C00000100000001 /* FamilyCircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC00000C2C00000100000001 /* FamilyCircleView.swift */; };
+		CC00010D2C00000100000001 /* CareScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC00000D2C00000100000001 /* CareScheduleView.swift */; };
+		CC00010E2C00000100000001 /* HealthLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC00000E2C00000100000001 /* HealthLogView.swift */; };
+		CC00010F2C00000100000001 /* AlertsHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC00000F2C00000100000001 /* AlertsHistoryView.swift */; };
+		CC0001102C00000100000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CC0000202C00000100000001 /* Assets.xcassets */; };
+		CC0001112C00000100000001 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000112C00000100000001 /* WelcomeView.swift */; };
+		CC0001122C00000100000001 /* PhoneLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000122C00000100000001 /* PhoneLoginView.swift */; };
+		CC0001132C00000100000001 /* OTPVerificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000132C00000100000001 /* OTPVerificationView.swift */; };
+		CC0001142C00000100000001 /* ProfileSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000142C00000100000001 /* ProfileSetupView.swift */; };
+		CC0001152C00000100000001 /* FamilySetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000152C00000100000001 /* FamilySetupView.swift */; };
+		CC0001162C00000100000001 /* NotificationPermissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000162C00000100000001 /* NotificationPermissionView.swift */; };
+		CC0001172C00000100000001 /* AuthFlowCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000172C00000100000001 /* AuthFlowCoordinatorView.swift */; };
+		CC0001182C00000100000001 /* EmailAuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0000182C00000100000001 /* EmailAuthView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0244036C307E43060026C3BD /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		CC0000002C00000100000001 /* CareCircle.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CareCircle.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CC0000012C00000100000001 /* CareCircleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CareCircleApp.swift; sourceTree = "<group>"; };
+		CC0000022C00000100000001 /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
+		CC0000032C00000100000001 /* Typography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Typography.swift; sourceTree = "<group>"; };
+		CC0000042C00000100000001 /* DesignTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignTokens.swift; sourceTree = "<group>"; };
+		CC0000052C00000100000001 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		CC0000062C00000100000001 /* FirebaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseService.swift; sourceTree = "<group>"; };
+		CC0000072C00000100000001 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		CC0000082C00000100000001 /* ParentHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentHomeView.swift; sourceTree = "<group>"; };
+		CC0000092C00000100000001 /* RadialStatusCirclesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadialStatusCirclesView.swift; sourceTree = "<group>"; };
+		CC00000A2C00000100000001 /* FamilyDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyDashboardView.swift; sourceTree = "<group>"; };
+		CC00000B2C00000100000001 /* ResolveAlertSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResolveAlertSheet.swift; sourceTree = "<group>"; };
+		CC00000C2C00000100000001 /* FamilyCircleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilyCircleView.swift; sourceTree = "<group>"; };
+		CC00000D2C00000100000001 /* CareScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CareScheduleView.swift; sourceTree = "<group>"; };
+		CC00000E2C00000100000001 /* HealthLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthLogView.swift; sourceTree = "<group>"; };
+		CC00000F2C00000100000001 /* AlertsHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertsHistoryView.swift; sourceTree = "<group>"; };
+		CC0000102C00000100000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CC0000112C00000100000001 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		CC0000122C00000100000001 /* PhoneLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneLoginView.swift; sourceTree = "<group>"; };
+		CC0000132C00000100000001 /* OTPVerificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OTPVerificationView.swift; sourceTree = "<group>"; };
+		CC0000142C00000100000001 /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
+		CC0000152C00000100000001 /* FamilySetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FamilySetupView.swift; sourceTree = "<group>"; };
+		CC0000162C00000100000001 /* NotificationPermissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPermissionView.swift; sourceTree = "<group>"; };
+		CC0000172C00000100000001 /* AuthFlowCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthFlowCoordinatorView.swift; sourceTree = "<group>"; };
+		CC0000182C00000100000001 /* EmailAuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailAuthView.swift; sourceTree = "<group>"; };
+		CC0000202C00000100000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CC0002012C00000100000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA0001012C00000100000001 /* FirebaseAuth in Frameworks */,
+				AA0001022C00000100000001 /* FirebaseFirestore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CC0003012C00000100000001 = {
+			isa = PBXGroup;
+			children = (
+				CC0003022C00000100000001 /* CareCircle */,
+				CC0003082C00000100000001 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CC0003022C00000100000001 /* CareCircle */ = {
+			isa = PBXGroup;
+			children = (
+				CC0000012C00000100000001 /* CareCircleApp.swift */,
+				CC0003032C00000100000001 /* DesignSystem */,
+				CC0003042C00000100000001 /* Models */,
+				CC0003052C00000100000001 /* Services */,
+				CC0003062C00000100000001 /* Views */,
+				CC0000102C00000100000001 /* Info.plist */,
+				CC0000202C00000100000001 /* Assets.xcassets */,
+				0244036C307E43060026C3BD /* GoogleService-Info.plist */,
+			);
+			path = CareCircle;
+			sourceTree = "<group>";
+		};
+		CC0003032C00000100000001 /* DesignSystem */ = {
+			isa = PBXGroup;
+			children = (
+				CC0000022C00000100000001 /* Colors.swift */,
+				CC0000032C00000100000001 /* Typography.swift */,
+				CC0000042C00000100000001 /* DesignTokens.swift */,
+			);
+			path = DesignSystem;
+			sourceTree = "<group>";
+		};
+		CC0003042C00000100000001 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				CC0000052C00000100000001 /* Models.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		CC0003052C00000100000001 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				CC0000062C00000100000001 /* FirebaseService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		CC0003062C00000100000001 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				CC0000072C00000100000001 /* RootView.swift */,
+				CC00030A2C00000100000001 /* Auth */,
+				CC0003072C00000100000001 /* ParentMode */,
+				CC0003092C00000100000001 /* FamilyMode */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		CC0003072C00000100000001 /* ParentMode */ = {
+			isa = PBXGroup;
+			children = (
+				CC0000082C00000100000001 /* ParentHomeView.swift */,
+			);
+			path = ParentMode;
+			sourceTree = "<group>";
+		};
+		CC0003082C00000100000001 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC0000002C00000100000001 /* CareCircle.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CC0003092C00000100000001 /* FamilyMode */ = {
+			isa = PBXGroup;
+			children = (
+				CC0000092C00000100000001 /* RadialStatusCirclesView.swift */,
+				CC00000A2C00000100000001 /* FamilyDashboardView.swift */,
+				CC00000B2C00000100000001 /* ResolveAlertSheet.swift */,
+				CC00000C2C00000100000001 /* FamilyCircleView.swift */,
+				CC00000D2C00000100000001 /* CareScheduleView.swift */,
+				CC00000E2C00000100000001 /* HealthLogView.swift */,
+				CC00000F2C00000100000001 /* AlertsHistoryView.swift */,
+			);
+			path = FamilyMode;
+			sourceTree = "<group>";
+		};
+		CC00030A2C00000100000001 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				CC0000172C00000100000001 /* AuthFlowCoordinatorView.swift */,
+				CC0000182C00000100000001 /* EmailAuthView.swift */,
+				CC0000112C00000100000001 /* WelcomeView.swift */,
+				CC0000122C00000100000001 /* PhoneLoginView.swift */,
+				CC0000132C00000100000001 /* OTPVerificationView.swift */,
+				CC0000142C00000100000001 /* ProfileSetupView.swift */,
+				CC0000152C00000100000001 /* FamilySetupView.swift */,
+				CC0000162C00000100000001 /* NotificationPermissionView.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		CC0004012C00000100000001 /* CareCircle */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CC0005012C00000100000001 /* Build configuration list for PBXNativeTarget "CareCircle" */;
+			buildPhases = (
+				CC0002022C00000100000001 /* Sources */,
+				CC0002012C00000100000001 /* Frameworks */,
+				CC0002032C00000100000001 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CareCircle;
+			packageProductDependencies = (
+				AA0002012C00000100000001 /* FirebaseAuth */,
+				AA0002022C00000100000001 /* FirebaseFirestore */,
+			);
+			productName = CareCircle;
+			productReference = CC0000002C00000100000001 /* CareCircle.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CC0006012C00000100000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1430;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					CC0004012C00000100000001 = {
+						CreatedOnToolsVersion = 14.3;
+					};
+				};
+			};
+			buildConfigurationList = CC0005022C00000100000001 /* Build configuration list for PBXProject "CareCircle" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = CC0003012C00000100000001;
+			packageReferences = (
+				AA0003012C00000100000001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
+			productRefGroup = CC0003082C00000100000001 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CC0004012C00000100000001 /* CareCircle */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		CC0002032C00000100000001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC0001102C00000100000001 /* Assets.xcassets in Resources */,
+				0244036D307E43060026C3BD /* GoogleService-Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CC0002022C00000100000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC0001012C00000100000001 /* CareCircleApp.swift in Sources */,
+				CC0001022C00000100000001 /* Colors.swift in Sources */,
+				CC0001032C00000100000001 /* Typography.swift in Sources */,
+				CC0001042C00000100000001 /* DesignTokens.swift in Sources */,
+				CC0001052C00000100000001 /* Models.swift in Sources */,
+				CC0001062C00000100000001 /* FirebaseService.swift in Sources */,
+				CC0001072C00000100000001 /* RootView.swift in Sources */,
+				CC0001082C00000100000001 /* ParentHomeView.swift in Sources */,
+				CC0001092C00000100000001 /* RadialStatusCirclesView.swift in Sources */,
+				CC00010A2C00000100000001 /* FamilyDashboardView.swift in Sources */,
+				CC00010B2C00000100000001 /* ResolveAlertSheet.swift in Sources */,
+				CC00010C2C00000100000001 /* FamilyCircleView.swift in Sources */,
+				CC00010D2C00000100000001 /* CareScheduleView.swift in Sources */,
+				CC00010E2C00000100000001 /* HealthLogView.swift in Sources */,
+				CC00010F2C00000100000001 /* AlertsHistoryView.swift in Sources */,
+				CC0001112C00000100000001 /* WelcomeView.swift in Sources */,
+				CC0001122C00000100000001 /* PhoneLoginView.swift in Sources */,
+				CC0001132C00000100000001 /* OTPVerificationView.swift in Sources */,
+				CC0001142C00000100000001 /* ProfileSetupView.swift in Sources */,
+				CC0001152C00000100000001 /* FamilySetupView.swift in Sources */,
+				CC0001162C00000100000001 /* NotificationPermissionView.swift in Sources */,
+				CC0001172C00000100000001 /* AuthFlowCoordinatorView.swift in Sources */,
+				CC0001182C00000100000001 /* EmailAuthView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		CC0005032C00000100000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		CC0005042C00000100000001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		CC0005052C00000100000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CareCircle/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = CareCircle;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 9.6.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.carecircle.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CC0005062C00000100000001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CareCircle/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = CareCircle;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 9.6.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.carecircle.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CC0005012C00000100000001 /* Build configuration list for PBXNativeTarget "CareCircle" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC0005052C00000100000001 /* Debug */,
+				CC0005062C00000100000001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CC0005022C00000100000001 /* Build configuration list for PBXProject "CareCircle" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC0005032C00000100000001 /* Debug */,
+				CC0005042C00000100000001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		AA0003012C00000100000001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = exactVersion;
+				version = 10.19.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		AA0002012C00000100000001 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AA0003012C00000100000001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		AA0002022C00000100000001 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AA0003012C00000100000001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = CC0006012C00000100000001 /* Project object */;
+}

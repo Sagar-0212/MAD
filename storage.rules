@@ -1,0 +1,15 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Prescription and health record photos
+    // Path: families/{familyId}/healthRecords/{fileName}
+    match /families/{familyId}/healthRecords/{fileName} {
+      allow read, write: if isAuthenticated() &&
+        firestore.exists(/databases/(default)/documents/families/$(familyId)/members/$(request.auth.uid));
+    }
+  }
+}

@@ -1,0 +1,134 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Checks if the user is a registered member of the family
+    // Looks for document at /families/{familyId}/members/{userId}
+    function isMember(familyId) {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/families/$(familyId)/members/$(request.auth.uid));
+    }
+
+    // Fetches the member document for the current authenticated user
+    function getMemberDoc(familyId) {
+      return get(/databases/$(database)/documents/families/$(familyId)/members/$(request.auth.uid));
+    }
+
+    // Checks if the current user has the 'child' role
+    function isChild(familyId) {
+      return isMember(familyId) && getMemberDoc(familyId).data.role == 'child';
+    }
+
+    // Checks if the current user is the specific parent member
+    function isSelf(memberId) {
+      return isAuthenticated() && request.auth.uid == memberId;
+    }
+
+    // Family Document
+    match /families/{familyId} {
+      // Any authenticated user can create a new family as the creator
+      allow create: if isAuthenticated() &&
+        request.resource.data.createdBy == request.auth.uid &&
+        request.resource.data.keys().hasAll(['name', 'createdBy', 'createdAt']);
+
+      // Only members can view or update family information
+      allow get: if isMember(familyId);
+      allow list: if false; // Private: disallow listing families
+      allow update: if isMember(familyId);
+      allow delete: if false; // Families cannot be deleted directly
+
+      // Family Members
+      match /members/{memberId} {
+        allow read: if isMember(familyId) || isSelf(memberId);
+        
+        // Allowed if user is creating their own member doc (initial setup / joining),
+        // or if an existing family member is adding someone (e.g. child adding parent)
+        allow create: if isAuthenticated() && (
+          (request.auth.uid == memberId && request.resource.data.userId == request.auth.uid) ||
+          isMember(familyId)
+        ) && request.resource.data.role in ['parent', 'child'];
+
+        allow update: if isMember(familyId) && (
+          request.auth.uid == memberId || isChild(familyId)
+        );
+
+        allow delete: if isChild(familyId);
+
+        // Daily Check-ins: families/{familyId}/members/{memberId}/checkins/{date}
+        match /checkins/{date} {
+          allow read: if isMember(familyId);
+          
+          // Parent can write their own check-in ('ok'), or family members/functions can update
+          allow create, update: if isMember(familyId) && (
+            (isSelf(memberId) && request.resource.data.status in ['ok', 'waiting']) ||
+            isChild(familyId)
+          );
+          allow delete: if false;
+        }
+
+        // Medications: families/{familyId}/members/{memberId}/medications/{medId}
+        match /medications/{medId} {
+          allow read: if isMember(familyId);
+          allow create, update, delete: if isMember(familyId);
+
+          // Medication Logs: /logs/{date}
+          match /logs/{date} {
+            allow read: if isMember(familyId);
+            allow write: if isMember(familyId);
+          }
+        }
+      }
+
+      // Health Records: families/{familyId}/healthRecords/{recordId}
+      match /healthRecords/{recordId} {
+        allow read: if isMember(familyId);
+        allow create: if isMember(familyId) &&
+          request.resource.data.addedBy == request.auth.uid &&
+          request.resource.data.familyMemberId is string;
+        allow update, delete: if isMember(familyId);
+      }
+
+      // Care Schedule: families/{familyId}/careSchedule/{entryId}
+      match /careSchedule/{entryId} {
+        allow read: if isMember(familyId);
+        allow create, update, delete: if isMember(familyId);
+      }
+
+      // Alerts: families/{familyId}/alerts/{alertId}
+      match /alerts/{alertId} {
+        allow read: if isMember(familyId);
+        // Alerts are primarily created by Cloud Functions (Admin SDK),
+        // but family members can create if simulating or manually triggering
+        allow create: if isMember(familyId);
+        // Resolving an alert: members can update with valid resolution
+        allow update: if isMember(familyId) &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['resolvedAt', 'resolvedBy', 'resolution']) &&
+          request.resource.data.resolution in ['confirmed_ok', 'false_alarm'] &&
+          request.resource.data.resolvedBy == request.auth.uid;
+        allow delete: if false;
+      }
+    }
+
+    // User profile links (maps auth.uid to their primary familyId)
+    match /users/{userId} {
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Invites: secure single-lookup with no listing/discovery allowed (Spark-compatible)
+    match /invites/{inviteCode} {
+      allow get: if isAuthenticated();
+      allow list: if false; // Disallow scraping/listing invite codes
+      allow create: if isAuthenticated() &&
+        request.resource.data.createdBy == request.auth.uid &&
+        request.resource.data.familyId is string;
+      allow update, delete: if false;
+    }
+  }
+}
+

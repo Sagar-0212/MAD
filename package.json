@@ -1,0 +1,11 @@
+{
+  "name": "carecircle-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CareCircle Firebase Backend (Firestore Rules, Cloud Functions, and Emulators)",
+  "scripts": {
+    "build": "cd functions && npm run build",
+    "emulators:start": "firebase emulators:start",
+    "test": "npx -y firebase-tools emulators:exec --only firestore,auth \"node --test --test-concurrency=1 tests/security_rules.test.mjs tests/cloud_functions.test.mjs\""
+  }
+}
