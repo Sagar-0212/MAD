@@ -55,15 +55,15 @@ public struct RootView: View {
                 .padding(.trailing, 16)
                 .padding(.bottom, (currentShell == .family && service.isAuthenticated && !showingAuthFlow) ? 72 : 20)
         }
-        .paperBackground()
-        #if DEBUG
         .onAppear {
+            service.loadDemoData(role: .child)
+            #if DEBUG
             applyQAScreenHook()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                 applyQAScreenHook()
             }
+            #endif
         }
-        #endif
     }
 
     #if DEBUG
@@ -182,6 +182,25 @@ public struct RootView: View {
                                 Image(systemName: "arrow.left.arrow.right")
                                     .font(.system(size: 11, weight: .bold))
                                 Text(currentShell == .parent ? "Family Dashboard" : "Parent Mode")
+                                    .font(.caption2.weight(.semibold))
+                            }
+                            .foregroundColor(Color.ccInk)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 7)
+                            .background(Color.ccLinen)
+                            .clipShape(Capsule())
+                        }
+
+                        Button(action: {
+                            withAnimation(CCMotion.gentle) {
+                                service.loadDemoData(role: currentShell == .parent ? .parent : .child)
+                            }
+                            CCHaptics.light()
+                        }) {
+                            HStack(spacing: 5) {
+                                Image(systemName: "sparkles")
+                                    .font(.system(size: 11, weight: .bold))
+                                Text("Reset Demo")
                                     .font(.caption2.weight(.semibold))
                             }
                             .foregroundColor(Color.ccInk)

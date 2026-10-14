@@ -12,6 +12,7 @@ project.xcworkspace/xcuserdata/
 *.ipa
 *.dSYM.zip
 *.dSYM
+.swiftpm/
 
 # Node & Firebase Emulators
 node_modules/

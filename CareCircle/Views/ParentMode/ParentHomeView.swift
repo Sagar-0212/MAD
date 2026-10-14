@@ -22,12 +22,21 @@ public struct ParentHomeView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ScaledMetric(relativeTo: .title) private var circleSizeMetric: CGFloat = 240
 
+    @State private var activeParentId: String = ""
+
     public init(service: FirebaseService = .shared, parentMemberId: String = "member_parent_arthur") {
         self.service = service
         self.parentMemberId = parentMemberId
     }
 
+    private var parentMembers: [FamilyMember] {
+        service.members.filter { $0.role == .parent }
+    }
+
     private var resolvedParentId: String {
+        if !activeParentId.isEmpty {
+            return activeParentId
+        }
         if !parentMemberId.isEmpty && parentMemberId != "member_parent_arthur" {
             return parentMemberId
         }
@@ -115,6 +124,41 @@ public struct ParentHomeView: View {
                 }
                 .padding(.horizontal, CCSpacing.lg)
                 .padding(.top, CCSpacing.sm)
+
+                // Multi-parent selector (for demonstrating both parents)
+                if parentMembers.count > 1 {
+                    HStack(spacing: 8) {
+                        ForEach(parentMembers) { parent in
+                            let isSelected = (parent.id == resolvedParentId)
+                            let isChecked = service.parentCheckins[parent.id]?.status == .ok
+                            Button(action: {
+                                withAnimation(CCMotion.snappy) {
+                                    activeParentId = parent.id
+                                }
+                                CCHaptics.selection()
+                            }) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: isChecked ? "checkmark.circle.fill" : "circle")
+                                        .font(.system(size: 13, weight: .bold))
+                                        .foregroundColor(isChecked ? Color.ccHearth : Color.ccTextTertiary)
+                                    Text(parent.displayName)
+                                        .font(.parentCallout())
+                                        .fontWeight(isSelected ? .bold : .medium)
+                                }
+                                .foregroundColor(isSelected ? Color.ccInk : Color.ccTextSecondary)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 8)
+                                .background(isSelected ? Color.ccSurfaceRaised : Color.ccLinen)
+                                .clipShape(Capsule())
+                                .overlay(
+                                    Capsule().stroke(isSelected ? Color.ccHearth : Color.ccHairline, lineWidth: isSelected ? 1.5 : 1)
+                                )
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.horizontal, CCSpacing.lg)
+                }
 
                 // Large Primary Check-In Button
                 VStack(spacing: CCSpacing.md) {

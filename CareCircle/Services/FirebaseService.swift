@@ -29,6 +29,7 @@ public class FirebaseService: ObservableObject {
 
     // MARK: - Email Auth
     @Published public var authEmail: String = ""
+    @Published public var isDemoMode: Bool = true
 
     // Private
     private let db = Firestore.firestore()
@@ -37,6 +38,7 @@ public class FirebaseService: ObservableObject {
 
     // MARK: - Init
     public init() {
+        loadDemoData(role: .child)
         setupAuthStateListener()
     }
 
@@ -59,6 +61,9 @@ public class FirebaseService: ObservableObject {
         authStateHandle = Auth.auth().addStateDidChangeListener { [weak self] _, user in
             Task { @MainActor in
                 guard let self = self else { return }
+                if self.isDemoMode {
+                    return // Keep rich 5-member demo data intact
+                }
                 if let user = user {
                     self.currentUserId = user.uid
                     self.authEmail = user.email ?? ""
@@ -152,8 +157,14 @@ public class FirebaseService: ObservableObject {
 
     // MARK: - Demo Mode Data Seeder
     public func loadDemoData(role: MemberRole = .child) {
-        let parentId = "member_parent_arthur"
-        let childId = "member_child_sarah"
+        self.isDemoMode = true
+        self.removeAllListeners()
+
+        let parentArthurId = "member_parent_arthur"
+        let parentEleanorId = "member_parent_eleanor"
+        let childSarahId = "member_child_sarah"
+        let childMichaelId = "member_child_michael"
+        let childEmilyId = "member_child_emily"
         
         self.currentUserId = (role == .parent) ? "user_parent_arthur" : "user_child_sarah"
         self.authEmail = (role == .parent) ? "parent@carecircle.demo" : "family@carecircle.demo"
@@ -167,100 +178,234 @@ public class FirebaseService: ObservableObject {
             inviteCode: "DEMO77"
         )
         
+        // 5 Family Members: 2 Parents + 3 Children/Caregivers
         self.members = [
             FamilyMember(
-                id: parentId,
+                id: parentArthurId,
                 userId: "user_parent_arthur",
                 role: .parent,
-                phoneNumber: "+15552345678",
+                phoneNumber: "+1 (555) 234-5678",
                 displayName: "Arthur Johnson",
                 email: "arthur@carecircle.demo"
             ),
             FamilyMember(
-                id: childId,
+                id: parentEleanorId,
+                userId: "user_parent_eleanor",
+                role: .parent,
+                phoneNumber: "+1 (555) 345-6789",
+                displayName: "Eleanor Johnson",
+                email: "eleanor@carecircle.demo"
+            ),
+            FamilyMember(
+                id: childSarahId,
                 userId: "user_child_sarah",
                 role: .child,
-                phoneNumber: "+15559876543",
+                phoneNumber: "+1 (555) 987-6543",
                 displayName: "Sarah Johnson",
                 email: "sarah@carecircle.demo"
             ),
             FamilyMember(
-                id: "member_child_michael",
+                id: childMichaelId,
                 userId: "user_child_michael",
                 role: .child,
-                phoneNumber: "+15558765432",
+                phoneNumber: "+1 (555) 876-5432",
                 displayName: "Michael Johnson",
                 email: "michael@carecircle.demo"
+            ),
+            FamilyMember(
+                id: childEmilyId,
+                userId: "user_child_emily",
+                role: .child,
+                phoneNumber: "+1 (555) 765-4321",
+                displayName: "Emily Johnson",
+                email: "emily@carecircle.demo"
             )
         ]
         
         let today = todayDateString()
-        self.parentCheckins[parentId] = DailyCheckin(
+        let calendar = Calendar.current
+        var checkinComponents = calendar.dateComponents([.year, .month, .day], from: Date())
+        checkinComponents.hour = 8
+        checkinComponents.minute = 42
+        let arthurCheckinDate = calendar.date(from: checkinComponents) ?? Date().addingTimeInterval(-7200)
+
+        // Arthur is checked in (green status)
+        self.parentCheckins[parentArthurId] = DailyCheckin(
+            id: today,
+            checkedInAt: arthurCheckinDate,
+            status: .ok
+        )
+
+        // Eleanor is in the 90-minute quiet grace window (amber status)
+        self.parentCheckins[parentEleanorId] = DailyCheckin(
             id: today,
             checkedInAt: nil,
             status: .waiting,
-            graceWindowExpiresAt: Date().addingTimeInterval(3600)
+            graceWindowExpiresAt: Date().addingTimeInterval(2700)
         )
         
+        // Comprehensive daily medications
         self.medications = [
             Medication(
                 id: "med_1",
-                name: "Lisinopril 10mg",
+                name: "Lisinopril 10mg (Arthur)",
                 scheduledTime: "08:00 AM",
                 createdBy: "user_child_sarah",
                 isTakenToday: true
             ),
             Medication(
                 id: "med_2",
-                name: "Metformin 500mg",
-                scheduledTime: "12:00 PM",
+                name: "Levothyroxine 50mcg (Eleanor)",
+                scheduledTime: "08:30 AM",
+                createdBy: "user_child_emily",
+                isTakenToday: true
+            ),
+            Medication(
+                id: "med_3",
+                name: "Metformin 500mg (Arthur)",
+                scheduledTime: "12:30 PM",
                 createdBy: "user_child_sarah",
                 isTakenToday: false
             ),
             Medication(
-                id: "med_3",
-                name: "Atorvastatin 20mg",
+                id: "med_4",
+                name: "Calcium + Vit D3 (Eleanor)",
+                scheduledTime: "01:00 PM",
+                createdBy: "user_child_emily",
+                isTakenToday: false
+            ),
+            Medication(
+                id: "med_5",
+                name: "Atorvastatin 20mg (Arthur)",
                 scheduledTime: "08:00 PM",
+                createdBy: "user_child_sarah",
+                isTakenToday: false
+            ),
+            Medication(
+                id: "med_6",
+                name: "CoQ10 100mg (Arthur)",
+                scheduledTime: "08:30 PM",
                 createdBy: "user_child_sarah",
                 isTakenToday: false
             )
         ]
         
+        // Full weekly care schedule with assigned caregivers & tasks
         self.careSchedule = [
             CareScheduleEntry(
                 id: "sched_1",
-                familyMemberId: parentId,
-                dayOfWeek: 2,
-                notes: "Dr. Evelyn Harris cardiology visit at 2:30 PM"
+                familyMemberId: childSarahId,
+                dayOfWeek: 2, // Monday
+                notes: "Morning check-in with Arthur & Eleanor; pick up Lisinopril refill at CVS"
             ),
             CareScheduleEntry(
                 id: "sched_2",
-                familyMemberId: parentId,
-                dayOfWeek: 4,
-                notes: "Pick up Lisinopril refill at pharmacy"
+                familyMemberId: childEmilyId,
+                dayOfWeek: 3, // Tuesday
+                notes: "Drive Eleanor to Physical Therapy session with Mark Davis at 10:30 AM"
             ),
             CareScheduleEntry(
                 id: "sched_3",
-                familyMemberId: parentId,
-                dayOfWeek: 6,
-                notes: "Weekend lunch and garden walk with Michael"
+                familyMemberId: childMichaelId,
+                dayOfWeek: 4, // Wednesday
+                notes: "Mid-week fresh grocery delivery & check household smoke detector batteries"
+            ),
+            CareScheduleEntry(
+                id: "sched_4",
+                familyMemberId: childEmilyId,
+                dayOfWeek: 5, // Thursday
+                notes: "Telehealth consultation with Dr. Marcus Vance (Endocrinologist) at 3:00 PM"
+            ),
+            CareScheduleEntry(
+                id: "sched_5",
+                familyMemberId: childSarahId,
+                dayOfWeek: 6, // Friday
+                notes: "Weekly 7-day pillbox organizer sorting & blood pressure recording"
+            ),
+            CareScheduleEntry(
+                id: "sched_6",
+                familyMemberId: childMichaelId,
+                dayOfWeek: 7, // Saturday
+                notes: "Weekend garden walk in park with Arthur; tea and family catch-up"
+            ),
+            CareScheduleEntry(
+                id: "sched_7",
+                familyMemberId: childSarahId,
+                dayOfWeek: 1, // Sunday
+                notes: "Sunday family dinner with Arthur, Eleanor, and grandchildren"
             )
         ]
         
+        // Rich health records: doctor visits, consultations, and lab panels
         self.healthRecords = [
             HealthRecord(
                 id: "rec_1",
-                familyMemberId: parentId,
+                familyMemberId: parentArthurId,
                 photoUrl: "",
-                doctorName: "Dr. Evelyn Harris (Cardiology)",
-                visitDate: Date().addingTimeInterval(-86400 * 5),
-                followUpDate: Date().addingTimeInterval(86400 * 25),
-                tags: ["Routine", "Cardiology", "Vitals Normal"],
+                doctorName: "Dr. Evelyn Harris, MD (Cardiology - St. Jude)",
+                visitDate: Date().addingTimeInterval(-86400 * 4),
+                followUpDate: Date().addingTimeInterval(86400 * 20),
+                tags: ["Cardiology", "BP 126/82", "ECG Normal", "Refill Approved"],
+                addedBy: "user_child_sarah"
+            ),
+            HealthRecord(
+                id: "rec_2",
+                familyMemberId: parentEleanorId,
+                photoUrl: "",
+                doctorName: "Dr. Marcus Vance, MD (Endocrinology Review)",
+                visitDate: Date().addingTimeInterval(-86400 * 9),
+                followUpDate: Date().addingTimeInterval(86400 * 14),
+                tags: ["Endocrinology", "Thyroid Panel", "TSH 2.1 mIU/L", "Dose Maintained"],
+                addedBy: "user_child_emily"
+            ),
+            HealthRecord(
+                id: "rec_3",
+                familyMemberId: parentArthurId,
+                photoUrl: "",
+                doctorName: "Dr. Clara Zhang, OD (Annual Vision & Glaucoma)",
+                visitDate: Date().addingTimeInterval(-86400 * 16),
+                followUpDate: Date().addingTimeInterval(86400 * 160),
+                tags: ["Ophthalmology", "Reading Glasses", "Eye Pressure 14 mmHg", "Retina Clear"],
+                addedBy: "user_child_emily"
+            ),
+            HealthRecord(
+                id: "rec_4",
+                familyMemberId: parentEleanorId,
+                photoUrl: "",
+                doctorName: "Mark Davis, DPT (ActiveLife Physical Therapy)",
+                visitDate: Date().addingTimeInterval(-86400 * 2),
+                followUpDate: Date().addingTimeInterval(86400 * 5),
+                tags: ["Physical Therapy", "Knee Mobility", "Home Rehab 20m", "Ice & Elevate"],
+                addedBy: "user_child_michael"
+            ),
+            HealthRecord(
+                id: "rec_5",
+                familyMemberId: parentArthurId,
+                photoUrl: "",
+                doctorName: "City Diagnostic Labs (Annual Blood Chemistry)",
+                visitDate: Date().addingTimeInterval(-86400 * 24),
+                followUpDate: Date().addingTimeInterval(86400 * 120),
+                tags: ["Comprehensive Metabolic", "A1C 5.8%", "Kidney Function Stable", "Fast 12h"],
                 addedBy: "user_child_sarah"
             )
         ]
         
-        self.alerts = []
+        // 1 Resolved alert for demonstration history
+        let yesterdayDate = calendar.date(byAdding: .day, value: -1, to: Date()) ?? Date()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let yesterdayString = dateFormatter.string(from: yesterdayDate)
+        self.alerts = [
+            CareAlert(
+                id: "alert_demo_resolved",
+                familyMemberId: parentArthurId,
+                date: yesterdayString,
+                triggeredAt: yesterdayDate.addingTimeInterval(3600 * 11),
+                resolvedAt: yesterdayDate.addingTimeInterval(3600 * 11 + 360),
+                resolvedBy: childSarahId,
+                resolution: .confirmedOk
+            )
+        ]
     }
 
     // MARK: - Load User Profile & Family Membership

@@ -26,7 +26,7 @@ xcrun simctl boot "iPhone 14 Pro" 2>/dev/null || true
 open -a "$DEVELOPER_DIR/Applications/Simulator.app"
 
 echo "==> [3/4] Installing App onto Simulator..."
-APP_PATH=$(find /Users/al14/Library/Developer/Xcode/DerivedData -name "CareCircle.app" -path "*/Debug-iphonesimulator/*" | head -n 1)
+APP_PATH=$(find /Users/al14/Library/Developer/Xcode/DerivedData/CareCircle* -name "CareCircle.app" ! -path "*Index.noindex*" -maxdepth 5 2>/dev/null | head -n 1)
 xcrun simctl install booted "$APP_PATH"
 
 echo "==> [4/4] Launching CareCircle..."
